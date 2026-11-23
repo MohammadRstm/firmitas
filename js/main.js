@@ -130,8 +130,8 @@
     var a = stops[i], b = stops[i + 1];
     var raw = (y - a.c) / Math.max(1, b.c - a.c), t = smooth(0.12, 0.88, raw);
     for (k = 0; k < KEYS.length; k++) out[KEYS[k]] = a.s[KEYS[k]] + (b.s[KEYS[k]] - a.s[KEYS[k]]) * t;
-    // the orb stays beside a card for longer, then crosses quickly
-    out.pside = a.s.pside + (b.s.pside - a.s.pside) * smooth(0.28, 0.72, raw);
+    // Between two cards: the old card fades out first, then the orb crosses, then the new card fades in.
+    out.pside = a.s.pside + (b.s.pside - a.s.pside) * smooth(0.3, 0.58, raw);
     active = t < 0.5 ? i : i + 1;
     // security: each card holds the front for a while, then the ring turns a quarter to the next one
     var sp = clamp((window.scrollY - secBox.top) / Math.max(1, secBox.h - vh), 0, 1) * 3, si = Math.min(2, Math.floor(sp));
@@ -173,6 +173,7 @@
   }
   function onFrame(cur, api) {
     var name = stops[active].name, i;
+    orbSide = cur.pside;
     if (protonBg && Math.abs(cur.proton - lastBg) > 0.004) {
       lastBg = cur.proton;
       protonBg.style.opacity = cur.proton.toFixed(3);
@@ -214,7 +215,7 @@
   });
   var globeCanvas = $("#web-globe");
   var globe = globeCanvas && window.SiteGlobe ? window.SiteGlobe.create(globeCanvas) : null;
-  var tilt = { x: 0, y: 0, tx: 0, ty: 0 }, frame = 0;
+  var tilt = { x: 0, y: 0, tx: 0, ty: 0 };
   function measureShots() {
     shots.forEach(function (s) {
       s.h = s.view.clientWidth * s.ratio;
@@ -230,19 +231,36 @@
     });
     stage.addEventListener("pointerleave", function () { tilt.tx = 0; tilt.ty = 0; });
   }
-  // Proton's cards fade in as they rise into place and fade out as they leave through the top.
-  var protonEl = $("#proton"), prowCards = $$(".prow__card").map(function (el) { return { el: el, a: -1 }; });
+  // Proton's cards take turns with the orb: a card fades out before the orb crosses to its side,
+  // and the next card fades in only after the orb has left. orbSide is where the orb really is (-1 left, 1 right).
+  var protonEl = $("#proton"), orbSide = 1;
+  function setCard(st, a) {
+    if (st.cardA !== undefined && Math.abs(a - st.cardA) < 0.005) return;
+    st.cardA = a;
+    st.card.style.opacity = a.toFixed(3);
+    st.card.style.transform = "translate3d(0," + ((1 - a) * 26).toFixed(1) + "px,0)";
+  }
   function fadeCards() {
     if (!protonEl || reduce) return;
-    var pr = protonEl.getBoundingClientRect();
+    var pr = protonEl.getBoundingClientRect(), i, st, a;
     if (pr.bottom < -200 || pr.top > vh + 200) return;
-    for (var i = 0; i < prowCards.length; i++) {
-      var c = prowCards[i], cr = c.el.getBoundingClientRect();
-      var a = Math.min(smooth(vh * 0.94, vh * 0.52, cr.top), smooth(-cr.height * 0.6, vh * 0.03, cr.top));
-      if (Math.abs(a - c.a) < 0.005) continue;
-      c.a = a;
-      c.el.style.opacity = a.toFixed(3);
-      c.el.style.transform = "translate3d(0," + ((1 - a) * 26).toFixed(1) + "px,0)";
+    var y = window.scrollY + vh * 0.5;
+    for (i = 0; i < stops.length; i++) {
+      st = stops[i];
+      if (!st.card) continue;
+      if (narrow || !scene) {
+        // phones: the orb stays at the top, so a card simply fades in as it scrolls up and out as it leaves
+        var cr = st.card.getBoundingClientRect();
+        a = Math.min(smooth(vh * 0.94, vh * 0.52, cr.top), smooth(-cr.height * 0.6, vh * 0.03, cr.top));
+      } else {
+        var prev = stops[i - 1], next = stops[i + 1];
+        a = 1;
+        if (y < st.c && prev) a = smooth(0.58, 0.78, (y - prev.c) / Math.max(1, st.c - prev.c));
+        else if (y >= st.c && next) a = 1 - smooth(0.12, 0.3, (y - st.c) / Math.max(1, next.c - st.c));
+        // a card sits on the side opposite the orb's place for that row: never show it while the orb is still there
+        a = Math.min(a, smooth(0.15, -0.55, -st.s.pside * orbSide));
+      }
+      setCard(st, a);
     }
   }
   function tick(now) {
@@ -262,8 +280,8 @@
       var s = shots[i], off = Math.min(s.max, (s.from + (s.to - s.from) * p) * s.h);
       s.el.style.transform = "translate3d(0," + (-off).toFixed(1) + "px,0)";
     }
-    // the globe on the home page: spins, at half the frame rate to stay light
-    if (globe && (frame++ % 2 === 0)) globe.draw(reduce ? 4 : (now || 0) / 1000);
+    // the globe on the home page spins and its routes glide, so it is drawn on every frame
+    if (globe) globe.draw(reduce ? 4 : (now || 0) / 1000);
   }
 
   /* ---------- Proton conversation plays in order once it is on screen ---------- */
@@ -283,7 +301,7 @@
 
   /* ---------- foundation: the calculator's screen counts up to the profit when it comes into view ---------- */
 
-  var digits = $("#calc-digits"), flow = $("#calcflow");
+  var digits = $("#calc-digits"), flow = $("#calcflow"), profitValue = $("#profit-value");
   if (digits && flow && canObserve) {
     var target = Number(digits.getAttribute("data-value")), counting = false;
     var money = function (v) { return v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
@@ -294,6 +312,7 @@
       (function frame(now) {
         var t = clamp((now - start) / 1700, 0, 1), e = 1 - Math.pow(1 - t, 3);
         digits.textContent = money(target * e);
+        if (profitValue) profitValue.textContent = "$" + Math.round(target * e).toLocaleString("en-US");
         if (t < 1) requestAnimationFrame(frame); else counting = false;
       })(start);
     }, { threshold: 0.5 }).observe(flow);
