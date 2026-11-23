@@ -11,10 +11,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
-  <link rel="stylesheet" href="css/styles.css?v=5">
+  <link rel="stylesheet" href="css/styles.css?v=6">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
+
+  <!-- Backdrop for the Proton section. It sits behind the 3D canvas and fades in with the orb -->
+  <div class="proton-bg" aria-hidden="true"><i></i></div>
 
   <canvas id="scene" aria-hidden="true"></canvas>
 
@@ -561,8 +564,8 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-  <script src="js/scene.js?v=5"></script>
-  <script src="js/globe.js?v=5"></script>
-  <script src="js/main.js?v=5"></script>
+  <script src="js/scene.js?v=6"></script>
+  <script src="js/globe.js?v=6"></script>
+  <script src="js/main.js?v=6"></script>
 </body>
 </html>

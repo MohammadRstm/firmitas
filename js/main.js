@@ -106,12 +106,7 @@
       s.c = r.top + y + r.height * 0.5;
       s.s = adjust(STATES[s.name]);
       // Proton rows: remember where the card is, so the orb can look at it
-      var card = s.el.querySelector(".prow__card");
-      if (card) {
-        var cr = card.getBoundingClientRect();
-        s.gx = ((cr.left + cr.width / 2) / window.innerWidth) * 2 - 1;
-        s.gy = cr.top + y + cr.height / 2;
-      }
+      s.card = s.el.querySelector(".prow__card");
     });
     if (heroEl && heroInner) {
       heroBox.top = heroEl.getBoundingClientRect().top + y;
@@ -126,11 +121,17 @@
     var raw = (y - a.c) / Math.max(1, b.c - a.c), t = smooth(0.12, 0.88, raw);
     for (k = 0; k < KEYS.length; k++) out[KEYS[k]] = a.s[KEYS[k]] + (b.s[KEYS[k]] - a.s[KEYS[k]]) * t;
     // the orb stays beside a card for longer, then crosses quickly
-    out.pside = a.s.pside + (b.s.pside - a.s.pside) * smooth(0.3, 0.7, raw);
+    out.pside = a.s.pside + (b.s.pside - a.s.pside) * smooth(0.28, 0.72, raw);
     active = t < 0.5 ? i : i + 1;
     if (scene) {
       var st = stops[active];
-      if (st.gy !== undefined) scene.setGaze(st.gx, -(((st.gy - window.scrollY) / vh) * 2 - 1)); else scene.setGaze();
+      if (st.card) {
+        // the cards stay pinned while their row scrolls, so ask where the card is right now
+        var cr = st.card.getBoundingClientRect();
+        scene.setGaze(((cr.left + cr.width / 2) / (window.innerWidth || 1280)) * 2 - 1, -(((cr.top + cr.height / 2) / vh) * 2 - 1));
+      } else {
+        scene.setGaze();
+      }
     }
     // The logo sits in the free space above the hero text and scrolls away with it.
     if (scene) scene.setLogoBox(((heroBox.top + heroBox.bottom) / 2 - window.scrollY) / vh, (heroBox.bottom - heroBox.top) / vh);
@@ -141,6 +142,7 @@
 
   var tags = $$(".tag").map(function (el) { return { el: el, anchor: el.getAttribute("data-anchor"), group: el.getAttribute("data-group"), on: false }; });
   var rulerLinks = $$(".ruler a"), lastName = "", pt = { x: 0, y: 0, ok: true };
+  var protonBg = $(".proton-bg"), lastBg = -1;
   var ROLE_FOCUS = {
     owner: { dims: { rest: 1, floor: 0.5 } },
     finance: { dims: { rest: 0.06, found: 1, floor: 1, struct: 0.28 } },
@@ -158,6 +160,10 @@
   }
   function onFrame(cur, api) {
     var name = stops[active].name, i;
+    if (protonBg && Math.abs(cur.proton - lastBg) > 0.004) {
+      lastBg = cur.proton;
+      protonBg.style.opacity = cur.proton.toFixed(3);
+    }
     if (name !== lastName) {
       lastName = name;
       applyFocus();

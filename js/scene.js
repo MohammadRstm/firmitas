@@ -979,6 +979,8 @@
         // never let one bad number (a zero-size window, say) poison the scene for good
         if (!isFinite(tar[key])) continue;
         if (cur[key] === undefined || k === 1 || !isFinite(cur[key])) cur[key] = tar[key];
+        // the orb's side has a speed limit, so a fast scroll can't whip it across the screen
+        else if (key === "pside") cur.pside += clamp((tar.pside - cur.pside) * k, -dt * 1.25, dt * 1.25);
         else cur[key] += (tar[key] - cur[key]) * k;
       }
       inited = true;

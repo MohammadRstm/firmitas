@@ -68,6 +68,34 @@ main, .footer { position: relative; z-index: 1; }
 .solid { background: var(--bg); border-block: 1px solid var(--line); }
 .no-webgl #scene, .no-webgl .tags { display: none; }
 
+/* Proton's backdrop: deep violet with its magenta and cyan, behind the canvas. The page logic fades it in with the orb. */
+.proton-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0; overflow: hidden;
+  background:
+    radial-gradient(70% 60% at 50% 50%, rgba(86, 54, 190, .30), transparent 72%),
+    linear-gradient(180deg, #0a0b0d 0%, #0c0719 18%, #0d081d 82%, #0a0b0d 100%);
+}
+.proton-bg::before, .proton-bg::after { content: ""; position: absolute; border-radius: 50%; will-change: transform; }
+.proton-bg::before {
+  width: 90vmax; height: 90vmax; left: -30vmax; top: -40vmax;
+  background: radial-gradient(closest-side, rgba(255, 69, 212, .26), rgba(255, 69, 212, 0) 70%);
+  animation: drift-a 26s ease-in-out infinite alternate;
+}
+.proton-bg::after {
+  width: 100vmax; height: 100vmax; right: -38vmax; bottom: -48vmax;
+  background: radial-gradient(closest-side, rgba(53, 216, 255, .2), rgba(53, 216, 255, 0) 70%);
+  animation: drift-b 32s ease-in-out infinite alternate;
+}
+.proton-bg i {
+  position: absolute; inset: 0; opacity: .5;
+  background-image: radial-gradient(rgba(200, 190, 255, .55) 1px, transparent 1.5px), radial-gradient(rgba(140, 230, 255, .4) 1px, transparent 1.5px);
+  background-size: 54px 54px, 86px 86px; background-position: 0 0, 27px 43px;
+  -webkit-mask-image: radial-gradient(75% 70% at 50% 50%, #000 20%, transparent 85%); mask-image: radial-gradient(75% 70% at 50% 50%, #000 20%, transparent 85%);
+}
+@keyframes drift-a { to { transform: translate3d(22vmax, 16vmax, 0) scale(1.15); } }
+@keyframes drift-b { to { transform: translate3d(-20vmax, -14vmax, 0) scale(1.1); } }
+.no-webgl .proton-bg { display: none; }
+
 /* Buttons: full pill everywhere */
 .btn {
   display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
@@ -276,16 +304,20 @@ main, .footer { position: relative; z-index: 1; }
 .shot--c { width: 50%; left: 2%; top: -10%; transform: translateZ(-120px); opacity: .82; }
 .shot--d { width: 54%; left: 52%; top: 70%; transform: translateZ(80px); }
 
-/* Proton: cards alternate sides, and the orb crosses over to face each one */
-.proton { padding: 2vh 0 10vh; }
-.prow { min-height: 84vh; display: flex; align-items: center; }
+/* Proton: cards alternate sides, and the orb crosses over to face each one.
+   Each row is tall and its card stays pinned while the row scrolls, which gives the orb room to cross slowly. */
+.proton { padding: 0 0 10vh; }
+.prow { min-height: 165vh; display: flex; align-items: flex-start; }
 .prow--left { justify-content: flex-start; }
 .prow--right { justify-content: flex-end; }
-#prow-1 { min-height: 96vh; }
+#prow-6 { min-height: 125vh; }
 .prow__card {
-  width: min(500px, 100%); display: grid; gap: 14px; padding: 28px; border-radius: var(--radius); border: 1px solid var(--line);
-  background: color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  position: sticky; top: 21vh;
+  width: min(500px, 100%); display: grid; gap: 14px; padding: 28px; border-radius: var(--radius); border: 1px solid rgba(150, 120, 255, .24);
+  background: color-mix(in srgb, #0d0a1c 74%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 30px 80px -40px rgba(120, 70, 255, .5);
 }
+.prow__card--plain { top: 30vh; box-shadow: none; }
 .prow__card--plain { width: min(560px, 100%); padding: 0; border: 0; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; gap: 0; }
 .prow__card h2 { font-size: clamp(2rem, 4vw, 3.2rem); margin-bottom: 20px; }
 .prow__card h3 { font-size: 1.5rem; }
@@ -451,9 +483,9 @@ main, .footer { position: relative; z-index: 1; }
   .web { padding: 72px 0; }
   .web__grid { grid-template-columns: 1fr; }
   .web__stage { height: clamp(340px, 58vh, 480px); order: -1; }
-  .prow, #prow-1 { min-height: 0; padding: 3vh 0; }
+  .prow, #prow-6 { min-height: 0; padding: 3vh 0; }
   #prow-1 { padding-top: 56vh; }
-  .prow__card { width: 100%; padding: 22px; background: color-mix(in srgb, var(--bg) 86%, transparent); }
+  .prow__card { position: static; width: 100%; padding: 22px; background: color-mix(in srgb, #0d0a1c 88%, transparent); }
   .prow__card--plain { padding: 0; background: none; }
   .roles { align-items: flex-end; padding: 50vh 0 60px; }
   .roles__col { padding: 20px; border-radius: var(--radius); background: color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
