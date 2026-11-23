@@ -281,6 +281,24 @@
     chatIo.observe(chat);
   }
 
+  /* ---------- foundation: the calculator's screen counts up to the profit when it comes into view ---------- */
+
+  var digits = $("#calc-digits"), flow = $("#calcflow");
+  if (digits && flow && canObserve) {
+    var target = Number(digits.getAttribute("data-value")), counting = false;
+    var money = function (v) { return v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+    new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting || counting) return;
+      counting = true;
+      var start = performance.now();
+      (function frame(now) {
+        var t = clamp((now - start) / 1700, 0, 1), e = 1 - Math.pow(1 - t, 3);
+        digits.textContent = money(target * e);
+        if (t < 1) requestAnimationFrame(frame); else counting = false;
+      })(start);
+    }, { threshold: 0.5 }).observe(flow);
+  }
+
   /* ---------- role tabs: the building lights up what each role can open ---------- */
 
   var tabs = $$('[role="tab"]');

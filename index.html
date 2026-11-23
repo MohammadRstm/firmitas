@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
-  <link rel="stylesheet" href="css/styles.css?v=9">
+  <link rel="stylesheet" href="css/styles.css?v=10">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -112,19 +112,36 @@
     <section class="story" id="story">
 
       <article class="chapter" id="ch-foundation">
-        <div class="wrap"><div class="panel reveal">
+        <div class="wrap"><div class="panel panel--wide reveal">
           <p class="lvl"><span class="lvl__mark"></span><span class="mono">-5.50</span>Foundation</p>
           <h2>One set of numbers under everything.</h2>
-          <p>A single finance calculator feeds the project page, Financials, the company overview, every PDF and the AI. Nothing is worked out twice, so nothing can disagree.</p>
-          <div class="mini" aria-label="Sample invoice list">
-            <div class="row"><span class="mono">INV-2026-041</span><span>Paid on account</span><span class="pilltag pilltag--good">Applied</span></div>
-            <div class="row"><span class="mono">INV-2026-042</span><span>Overdue 12 days</span><span class="pilltag pilltag--warn">Reminder sent</span></div>
-            <div class="row"><span class="mono">INV-2026-043</span><span>Issues itself 1 Dec</span><span class="pilltag">Scheduled</span></div>
+          <p>Salaries, hours, BOQs, variation orders and every expense go into one finance calculator. One figure comes out, and every screen, every PDF and the AI read that same figure.</p>
+          <div class="calcflow" id="calcflow" role="img" aria-label="Salaries, hours, BOQs, variation orders, expenses and payments go into one calculator. Pure profit comes out.">
+            <svg class="calcflow__wires" viewBox="0 0 560 300" aria-hidden="true">
+              <path class="wire" d="M126 32 C196 32 200 127.5 268 127.5"/>
+              <path class="wire" d="M126 79 C196 79 200 136.5 268 136.5"/>
+              <path class="wire" d="M126 126 C196 126 200 145.5 268 145.5"/>
+              <path class="wire" d="M126 174 C196 174 200 154.5 268 154.5"/>
+              <path class="wire" d="M126 221 C196 221 200 163.5 268 163.5"/>
+              <path class="wire" d="M126 268 C196 268 200 172.5 268 172.5"/>
+              <path class="wire wire--out" d="M392 150 C424 150 436 150 462 150"/>
+            </svg>
+            <span class="node" style="--y:32">Salaries</span>
+            <span class="node" style="--y:79">Hours</span>
+            <span class="node" style="--y:126">BOQs</span>
+            <span class="node" style="--y:174">VOs</span>
+            <span class="node" style="--y:221">Expenses</span>
+            <span class="node" style="--y:268">Payments</span>
+            <span class="node node--out">Pure profit</span>
+            <div class="calc3d" aria-hidden="true"><div class="calc">
+              <div class="calc__screen"><span id="calc-digits" data-value="6090">6,090.00</span></div>
+              <div class="calc__solar"></div>
+              <div class="calc__keys"><i class="k k--fn">M+</i><i class="k k--fn">M-</i><i class="k k--fn">MRC</i><i class="k k--fn">GT</i><i class="k k--blue">AC</i><i class="k">7</i><i class="k">8</i><i class="k">9</i><i class="k k--fn">&divide;</i><i class="k k--fn">%</i><i class="k">4</i><i class="k">5</i><i class="k">6</i><i class="k k--fn">&times;</i><i class="k k--fn">MU</i><i class="k">1</i><i class="k">2</i><i class="k">3</i><i class="k k--fn">-</i><i class="k k--eq">=</i><i class="k">0</i><i class="k">00</i><i class="k">.</i><i class="k k--blue">+</i></div>
+            </div></div>
           </div>
           <ul class="facts">
             <li>USD and LBP, each cost at its own day's rate</li>
             <li>VAT on the work, never on supervision</li>
-            <li>Cost budgets kept in versions, each with a reason</li>
           </ul>
         </div></div>
       </article>
@@ -523,9 +540,9 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-  <script src="js/scene.js?v=9"></script>
-  <script src="js/world.js?v=9"></script>
-  <script src="js/globe.js?v=9"></script>
-  <script src="js/main.js?v=9"></script>
+  <script src="js/scene.js?v=10"></script>
+  <script src="js/world.js?v=10"></script>
+  <script src="js/globe.js?v=10"></script>
+  <script src="js/main.js?v=10"></script>
 </body>
 </html>
