@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sample portfolio pages (source for the showcase images)</title>
+<!--
+  Three invented pages of a studio's portfolio website. They are captured to
+  assets/showcase/*.webp by tools/capture.mjs and shown in the websites section.
+  Every name, place and figure here is made up. The "photos" are drawn by the
+  script at the bottom of this file.
+  Open with ?p=projects, ?p=project or ?p=studio.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0c0c0d; --panel: #141416; --ink: #f4f3ef; --ink2: #a9a8a3; --ink3: #6f6e6a; --line: #262629; --blue: #4d8dff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1440px; background: var(--bg); color: var(--ink); font-family: "Archivo", sans-serif; font-size: 17px; line-height: 1.55; }
+  .page { display: none; padding: 0 64px; }
+  .page.on { display: block; }
+  .cond { font-stretch: 64%; font-weight: 800; text-transform: uppercase; letter-spacing: .005em; line-height: .94; }
+  .label { font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--blue); font-weight: 600; }
+  .muted { color: var(--ink2); }
+  header { display: flex; align-items: center; height: 84px; border-bottom: 1px solid var(--line); }
+  .mark { width: 22px; height: 30px; border: 3px solid var(--ink); border-radius: 11px; margin-right: 12px; }
+  .brand { font-weight: 700; letter-spacing: .04em; font-size: 15px; }
+  header nav { margin-left: auto; display: flex; gap: 36px; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink2); }
+  header nav .on { color: var(--ink); border-bottom: 1px solid var(--ink); padding-bottom: 4px; }
+  footer { display: flex; align-items: center; height: 120px; margin-top: 96px; border-top: 1px solid var(--line); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink3); }
+  footer span:last-child { margin-left: auto; }
+  .art { position: relative; overflow: hidden; background: #111; }
+  .art svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .chip { display: inline-block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 4px 11px; border: 1px solid #3a3a3e; border-radius: 99px; color: var(--ink2); }
+
+  /* projects */
+  .p-head { display: flex; align-items: flex-end; padding: 72px 0 40px; }
+  .p-head h1 { margin: 10px 0 0; font-size: 190px; }
+  .p-head .count { margin-left: 22px; font-size: 44px; color: var(--ink3); padding-bottom: 22px; }
+  .filters { display: flex; gap: 10px; align-items: center; padding: 18px 0; border-block: 1px solid var(--line); }
+  .filters .chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .filters .sort { margin-left: auto; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink2); }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 44px 28px; padding-top: 44px; }
+  .card .art { aspect-ratio: 4 / 3; }
+  .card .label { display: block; margin: 18px 0 6px; }
+  .card h3 { margin: 0 0 4px; font-size: 40px; }
+  .card p { margin: 0 0 12px; color: var(--ink2); font-size: 15px; }
+
+  /* project */
+  .back { padding: 26px 0; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink2); }
+  .hero { position: relative; }
+  .hero .art { height: 640px; }
+  .hero .over { position: absolute; left: 0; right: 0; bottom: 0; padding: 150px 44px 40px; background: linear-gradient(transparent, rgba(8, 8, 9, .86)); }
+  .hero h1 { margin: 12px 0 0; font-size: 150px; }
+  .facts { display: grid; grid-template-columns: repeat(5, 1fr); border-bottom: 1px solid var(--line); }
+  .facts div { padding: 30px 0; }
+  .facts b { display: block; font-size: 22px; font-weight: 600; margin-top: 6px; }
+  .story { display: grid; grid-template-columns: 1fr 1.1fr; gap: 72px; padding: 72px 0; align-items: start; }
+  .story p { margin: 0 0 18px; color: #d2d1cc; font-size: 19px; max-width: 30em; }
+  .story .art { aspect-ratio: 16 / 11; border: 1px solid var(--line); }
+  .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding-top: 22px; }
+  .gallery .art { aspect-ratio: 1 / 1; }
+  .gallery .wide { grid-column: span 2; aspect-ratio: auto; }
+  .cta { display: flex; align-items: center; padding: 84px 0 0; }
+  .cta h2 { margin: 0; font-size: 84px; max-width: 9em; }
+  .btn { margin-left: auto; font-size: 13px; letter-spacing: .2em; text-transform: uppercase; padding: 20px 34px; background: var(--blue); color: #fff; border-radius: 99px; font-weight: 600; }
+
+  /* studio */
+  .s-head { padding: 84px 0 56px; }
+  .s-head h1 { margin: 16px 0 0; font-size: 136px; max-width: 9.6em; }
+  .s-intro { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 72px; align-items: start; }
+  .s-intro p { margin: 0; font-size: 22px; color: #d2d1cc; }
+  .s-intro .art { aspect-ratio: 16 / 9; }
+  .services { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; padding: 84px 0 0; }
+  .services div { border-top: 1px solid #3a3a3e; padding-top: 22px; }
+  .services h3 { margin: 0 0 12px; font-size: 44px; }
+  .services p { margin: 0; color: var(--ink2); font-size: 15.5px; }
+  .numbers { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 84px; border-block: 1px solid var(--line); }
+  .numbers div { padding: 44px 0; }
+  .numbers b { display: block; font-size: 150px; }
+  .offices { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; padding-top: 72px; }
+  .office { background: var(--panel); border: 1px solid var(--line); }
+  .office .art { height: 260px; }
+  .office div:last-child { padding: 26px 28px 30px; }
+  .office h3 { margin: 0 0 6px; font-size: 44px; }
+</style>
+</head>
+<body>
+
+<section class="page" id="projects">
+  <header><span class="mark"></span><span class="brand">YOUR STUDIO</span><nav><span class="on">Projects</span><span>Studio</span><span>Contact</span></nav></header>
+  <div class="p-head"><div><span class="label">Selected work</span><h1 class="cond">Projects</h1></div><span class="count cond">24</span></div>
+  <div class="filters"><span class="chip on">All</span><span class="chip">Residential</span><span class="chip">Hospitality</span><span class="chip">Commercial</span><span class="chip">Public</span><span class="sort">Newest first</span></div>
+  <div class="grid">
+    <div class="card"><div class="art" data-art="villa" data-pal="dusk" data-seed="3"></div><span class="label">Residential</span><h3 class="cond">Hillside Villas</h3><p>Northern coast, 2026</p><span class="chip">In progress</span></div>
+    <div class="card"><div class="art" data-art="tower" data-pal="night" data-seed="8"></div><span class="label">Hospitality</span><h3 class="cond">Harbour Hotel</h3><p>Old port, 2026</p><span class="chip">In progress</span></div>
+    <div class="card"><div class="art" data-art="arches" data-pal="sand" data-seed="5"></div><span class="label">Public</span><h3 class="cond">Courtyard School</h3><p>River district, 2025</p><span class="chip">Completed</span></div>
+    <div class="card"><div class="art" data-art="block" data-pal="day" data-seed="12"></div><span class="label">Commercial</span><h3 class="cond">Riverside Offices</h3><p>East bank, 2025</p><span class="chip">Completed</span></div>
+    <div class="card"><div class="art" data-art="pavilion" data-pal="dusk" data-seed="21"></div><span class="label">Public</span><h3 class="cond">Dune Pavilion</h3><p>Desert road, 2025</p><span class="chip">Completed</span></div>
+    <div class="card"><div class="art" data-art="villa" data-pal="day" data-seed="17"></div><span class="label">Residential</span><h3 class="cond">Seaview House</h3><p>South bay, 2024</p><span class="chip">Completed</span></div>
+    <div class="card"><div class="art" data-art="block" data-pal="night" data-seed="30"></div><span class="label">Residential</span><h3 class="cond">Stone Terrace Homes</h3><p>Upper town, 2024</p><span class="chip">Completed</span></div>
+    <div class="card"><div class="art" data-art="tower" data-pal="sand" data-seed="41"></div><span class="label">Commercial</span><h3 class="cond">Market Tower</h3><p>Central square, 2023</p><span class="chip">Completed</span></div>
+    <div class="card"><div class="art" data-art="arches" data-pal="dusk" data-seed="52"></div><span class="label">Hospitality</span><h3 class="cond">Olive Grove Clinic</h3><p>Valley road, 2023</p><span class="chip">Completed</span></div>
+  </div>
+  <footer><span>Your Studio</span><span>Projects / Studio / Contact</span></footer>
+</section>
+
+<section class="page" id="project">
+  <header><span class="mark"></span><span class="brand">YOUR STUDIO</span><nav><span class="on">Projects</span><span>Studio</span><span>Contact</span></nav></header>
+  <div class="back">&larr; All projects</div>
+  <div class="hero"><div class="art" data-art="villa" data-pal="dusk" data-seed="3" data-wide="1"></div><div class="over"><span class="label">Residential / Northern coast</span><h1 class="cond">Hillside Villas</h1></div></div>
+  <div class="facts">
+    <div><span class="label">Status</span><b>In progress</b></div>
+    <div><span class="label">Year</span><b>2026</b></div>
+    <div><span class="label">Type</span><b>Residential</b></div>
+    <div><span class="label">Homes</span><b>14 villas</b></div>
+    <div><span class="label">Area</span><b>6,200 m&sup2;</b></div>
+  </div>
+  <div class="story">
+    <div>
+      <span class="label">The idea</span>
+      <p style="margin-top:18px">Fourteen homes step down a west-facing slope, each one turned a few degrees so no terrace looks into another.</p>
+      <p>Long horizontal roofs shade the glass through the afternoon and collect the evening light. Local stone anchors the lower floors to the hill.</p>
+      <p>Cars stay at the top of the site. Everything below it is paths, gardens and water.</p>
+    </div>
+    <div class="art" data-art="plan" data-seed="4"></div>
+  </div>
+  <span class="label">Photos</span>
+  <div class="gallery">
+    <div class="art wide" data-art="villa" data-pal="day" data-seed="17"></div>
+    <div class="art" data-art="interior" data-pal="dusk" data-seed="2"></div>
+    <div class="art" data-art="pavilion" data-pal="sand" data-seed="9"></div>
+    <div class="art" data-art="interior" data-pal="day" data-seed="6"></div>
+    <div class="art" data-art="block" data-pal="dusk" data-seed="14"></div>
+    <div class="art wide" data-art="villa" data-pal="night" data-seed="26"></div>
+  </div>
+  <div class="cta"><h2 class="cond">Planning homes on a slope of your own?</h2><span class="btn">Contact us</span></div>
+  <footer><span>Your Studio</span><span>Next project: Harbour Hotel &rarr;</span></footer>
+</section>
+
+<section class="page" id="studio">
+  <header><span class="mark"></span><span class="brand">YOUR STUDIO</span><nav><span>Projects</span><span class="on">Studio</span><span>Contact</span></nav></header>
+  <div class="s-head"><span class="label">Studio</span><h1 class="cond">We design buildings people want to stay in.</h1></div>
+  <div class="s-intro">
+    <p>Architecture, interiors and the drawings that get them built. We stay with a project from the first sketch to the last site visit, in two offices and wherever the work takes us.</p>
+    <div class="art" data-art="block" data-pal="day" data-seed="12" data-wide="1"></div>
+  </div>
+  <div class="services">
+    <div><h3 class="cond">Architecture</h3><p>Concept, planning and full design for homes, hotels, offices and public buildings.</p></div>
+    <div><h3 class="cond">Interiors</h3><p>Space planning, materials, lighting and furniture, designed together with the building.</p></div>
+    <div><h3 class="cond">Execution files</h3><p>Coordinated drawings and schedules a contractor can price and build from.</p></div>
+    <div><h3 class="cond">Site supervision</h3><p>Regular visits, clear reports and decisions made on site, until handover.</p></div>
+  </div>
+  <div class="numbers">
+    <div><b class="cond">18</b><span class="label">Years in practice</span></div>
+    <div><b class="cond">140</b><span class="label">Projects delivered</span></div>
+    <div><b class="cond">9</b><span class="label">Countries</span></div>
+  </div>
+  <div class="offices">
+    <div class="office"><div class="art" data-art="plan" data-seed="11"></div><div><span class="label">Head office</span><h3 class="cond">Coast office</h3><span class="muted">Harbour Street 12</span></div></div>
+    <div class="office"><div class="art" data-art="arches" data-pal="sand" data-seed="5" data-wide="1"></div><div><span class="label">Second office</span><h3 class="cond">River office</h3><span class="muted">Mill Lane 4</span></div></div>
+  </div>
+  <footer><span>Your Studio</span><span>Projects / Studio / Contact</span></footer>
+</section>
+
+<script>
+(function () {
+  "use strict";
+  var W = 800, H = 520;
+  var PAL = {
+    dusk: { sky: ["#18233f", "#a9584a", "#f0b07c"], sun: "#ffd9a8", far: "#3a3550", ground: "#1b1c22", gfade: "#0e0f13", wall: "#ddd6cc", roof: "#efe9df", shade: "#8d8479", glass: "#243449", glassS: "#182536", lit: "#ffcf8c", tree: "#1d3a33", tree2: "#2b5247", water: "#3c5f86", fig: "#111318", lamp: .5 },
+    day: { sky: ["#8fbbe6", "#d6e8f6", "#f5f1e8"], sun: "#ffffff", far: "#b9cadb", ground: "#c9c2b4", gfade: "#a79f90", wall: "#f6f3ec", roof: "#ffffff", shade: "#c2bbad", glass: "#5d87a8", glassS: "#4a6f8c", lit: "#bfe0f3", tree: "#4f7d58", tree2: "#6c9a72", water: "#6fb4d6", fig: "#2a2c33", lamp: .15 },
+    night: { sky: ["#05070c", "#0e1627", "#1d2c4a"], sun: "#9db8ff", far: "#101a2c", ground: "#0b0d12", gfade: "#050608", wall: "#2c3039", roof: "#3a3f4a", shade: "#191c23", glass: "#0e1521", glassS: "#0a0f18", lit: "#ffc266", tree: "#0f1f1b", tree2: "#17302a", water: "#16304f", fig: "#000", lamp: .62 },
+    sand: { sky: ["#e2bd8e", "#efd8ba", "#f8efe2"], sun: "#fff6e2", far: "#d9bf9d", ground: "#b99876", gfade: "#9c7d5e", wall: "#fbf5ea", roof: "#fffaf2", shade: "#d6c0a2", glass: "#6f5241", glassS: "#5b4234", lit: "#ffe1ac", tree: "#66763f", tree2: "#84944f", water: "#7fb0b5", fig: "#3a2a20", lamp: .22 }
+  };
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function f(n) { return Math.round(n * 10) / 10; }
+  function rect(x, y, w, h, fill, extra) { return '<rect x="' + f(x) + '" y="' + f(y) + '" width="' + f(w) + '" height="' + f(h) + '" fill="' + fill + '"' + (extra || "") + '/>'; }
+  function poly(pts, fill, extra) { return '<polygon points="' + pts.map(function (p) { return f(p[0]) + "," + f(p[1]); }).join(" ") + '" fill="' + fill + '"' + (extra || "") + '/>'; }
+  var K = 0.36;
+
+  function vol(r, P, x, base, bw, bh, o) {
+    var d = o.d, s = "", row, col;
+    s += poly([[x + bw, base], [x + bw + d, base - d * K], [x + bw + d + bh * 0.55, base - d * K + 10], [x + bw + bh * 0.5, base + 12]], "rgba(0,0,0,.2)");
+    s += poly([[x + bw, base], [x + bw + d, base - d * K], [x + bw + d, base - bh - d * K], [x + bw, base - bh]], P.shade);
+    s += poly([[x, base - bh], [x + bw, base - bh], [x + bw + d, base - bh - d * K], [x + d, base - bh - d * K]], P.roof);
+    s += rect(x, base - bh, bw, bh, P.wall);
+    var mx = Math.min(14, bw * 0.05), my = Math.min(12, bh * 0.1), cw = (bw - 2 * mx) / o.cols, ch = (bh - 2 * my) / o.rows;
+    for (row = 0; row < o.rows; row++) {
+      for (col = 0; col < o.cols; col++) {
+        s += rect(x + mx + col * cw + cw * 0.1, base - bh + my + row * ch + ch * 0.14, cw * 0.8, ch * 0.66, r() < P.lamp ? P.lit : P.glass);
+      }
+      var y0 = base - bh + my + row * ch + ch * 0.14;
+      s += poly([[x + bw + d * 0.14, y0 - d * 0.14 * K], [x + bw + d * 0.86, y0 - d * 0.86 * K], [x + bw + d * 0.86, y0 - d * 0.86 * K + ch * 0.66], [x + bw + d * 0.14, y0 - d * 0.14 * K + ch * 0.66]], P.glassS);
+      if (o.balcony && row > 0) s += rect(x + mx, y0 + ch * 0.66, bw - 2 * mx, Math.max(2, ch * 0.08), P.shade);
+    }
+    return s;
+  }
+  function tree(r, P, x, base, h, tall) {
+    var rx = tall ? h * 0.12 : h * 0.27, ry = tall ? h * 0.46 : h * 0.33, cy = base - h * (tall ? 0.52 : 0.66);
+    return rect(x - h * 0.025, base - h * 0.4, h * 0.05, h * 0.4, P.fig) +
+      '<ellipse cx="' + f(x) + '" cy="' + f(cy) + '" rx="' + f(rx) + '" ry="' + f(ry) + '" fill="' + P.tree + '"/>' +
+      '<ellipse cx="' + f(x - rx * 0.25) + '" cy="' + f(cy - ry * 0.2) + '" rx="' + f(rx * 0.6) + '" ry="' + f(ry * 0.62) + '" fill="' + P.tree2 + '"/>';
+  }
+  function person(P, x, base, h) {
+    return '<circle cx="' + f(x) + '" cy="' + f(base - h * 0.9) + '" r="' + f(h * 0.085) + '" fill="' + P.fig + '"/>' +
+      rect(x - h * 0.1, base - h * 0.8, h * 0.2, h * 0.48, P.fig, ' rx="' + f(h * 0.08) + '"') + rect(x - h * 0.07, base - h * 0.36, h * 0.14, h * 0.36, P.fig);
+  }
+
+  function exterior(type, P, seed) {
+    var r = rng(seed), id = "g" + type + seed, hz = 372, s = "", i;
+    s += '<defs><linearGradient id="' + id + 's" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + P.sky[0] + '"/><stop offset=".6" stop-color="' + P.sky[1] + '"/><stop offset="1" stop-color="' + P.sky[2] + '"/></linearGradient>' +
+      '<radialGradient id="' + id + 'u"><stop offset="0" stop-color="' + P.sun + '" stop-opacity=".9"/><stop offset="1" stop-color="' + P.sun + '" stop-opacity="0"/></radialGradient>' +
+      '<linearGradient id="' + id + 'g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + P.ground + '"/><stop offset="1" stop-color="' + P.gfade + '"/></linearGradient></defs>';
+    s += rect(0, 0, W, hz, "url(#" + id + "s)");
+    s += '<circle cx="' + f(110 + r() * 580) + '" cy="' + f(hz - 30 - r() * 70) + '" r="' + f(130 + r() * 70) + '" fill="url(#' + id + 'u)"/>';
+    for (i = 0; i < 10; i++) { var fw = 40 + r() * 80, fh = 14 + r() * 62; s += rect(i * 88 - 30 + r() * 30, hz - fh, fw, fh, P.far, ' opacity=".7"'); }
+    s += rect(0, hz, W, H - hz, "url(#" + id + "g)");
+    var base = hz + 44;
+    if (type === "tower") {
+      s += vol(r, P, 215, base, 330, 62, { cols: 9, rows: 1, d: 70 });
+      s += vol(r, P, 300, base - 62, 160, 230 + r() * 50, { cols: 5, rows: 11, d: 60 });
+    } else if (type === "villa") {
+      s += poly([[60, base + 34], [330, base + 34], [400, base + 70], [20, base + 70]], P.water, ' opacity=".9"');
+      s += vol(r, P, 190, base, 330, 66, { cols: 5, rows: 1, d: 100 });
+      s += vol(r, P, 262, base - 72, 380, 60, { cols: 7, rows: 1, d: 100 });
+      s += vol(r, P, 330, base - 138, 170, 46, { cols: 3, rows: 1, d: 80 });
+    } else if (type === "block") {
+      s += vol(r, P, 120, base, 220, 150, { cols: 5, rows: 4, d: 74, balcony: true });
+      s += vol(r, P, 340, base, 200, 236, { cols: 5, rows: 6, d: 74, balcony: true });
+      s += vol(r, P, 540, base, 118, 112, { cols: 3, rows: 3, d: 74, balcony: true });
+    } else if (type === "pavilion") {
+      var px = 170, pw = 430, ph = 96;
+      s += poly([[px + pw, base], [px + pw + 90, base - 90 * K], [px + pw + 150, base - 90 * K + 12], [px + pw + 60, base + 14]], "rgba(0,0,0,.2)");
+      s += rect(px + 40, base - ph + 12, pw - 80, ph - 12, P.glass);
+      for (i = 0; i < 9; i++) s += rect(px + 40 + i * ((pw - 80) / 8) - 1.5, base - ph + 12, 3, ph - 12, P.shade);
+      s += rect(px + 150, base - ph + 12, 120, ph - 12, P.lit, ' opacity=".85"');
+      s += poly([[px - 30, base - ph], [px + pw + 30, base - ph], [px + pw + 130, base - ph - 100 * K], [px + 70, base - ph - 100 * K]], P.roof);
+      s += rect(px - 30, base - ph, pw + 60, 12, P.wall);
+      s += poly([[px + pw + 30, base - ph], [px + pw + 130, base - ph - 100 * K], [px + pw + 130, base - ph - 100 * K + 12], [px + pw + 30, base - ph + 12]], P.shade);
+      for (i = 0; i < 4; i++) s += rect(px + i * (pw / 3) - 4, base - ph + 12, 8, ph - 12, P.wall);
+    } else {
+      var ax = 110, aw = 520, ah = 150, n = 7, cw = aw / n;
+      s += poly([[ax + aw, base], [ax + aw + 80, base - 80 * K], [ax + aw + 160, base - 80 * K + 12], [ax + aw + 80, base + 14]], "rgba(0,0,0,.2)");
+      s += poly([[ax + aw, base], [ax + aw + 80, base - 80 * K], [ax + aw + 80, base - ah - 80 * K], [ax + aw, base - ah]], P.shade);
+      s += poly([[ax, base - ah], [ax + aw, base - ah], [ax + aw + 80, base - ah - 80 * K], [ax + 80, base - ah - 80 * K]], P.roof);
+      s += rect(ax, base - ah, aw, ah, P.wall);
+      for (i = 0; i < n; i++) {
+        var x0 = ax + i * cw + cw * 0.16, x1 = ax + (i + 1) * cw - cw * 0.16, rr = (x1 - x0) / 2, top = base - 78;
+        s += '<path d="M' + f(x0) + " " + f(base) + " V" + f(top) + " A" + f(rr) + " " + f(rr) + " 0 0 1 " + f(x1) + " " + f(top) + " V" + f(base) + ' Z" fill="' + (r() < P.lamp + 0.15 ? P.lit : P.glass) + '"/>';
+        s += rect(ax + i * cw + cw * 0.3, base - ah + 16, cw * 0.4, 22, P.glass);
+      }
+      s += vol(r, P, ax + aw - 120, base - ah, 84, 86, { cols: 2, rows: 2, d: 60 });
+    }
+    var count = 4 + Math.floor(r() * 3);
+    for (i = 0; i < count; i++) {
+      var left = r() < 0.5, tx = left ? 20 + r() * 130 : 650 + r() * 130;
+      s += tree(r, P, tx, base + 8 + r() * 30, 80 + r() * 90, r() < 0.45);
+    }
+    s += person(P, 150 + r() * 40, base + 40, 30) + person(P, 470 + r() * 120, base + 34, 27) + person(P, 500 + r() * 140, base + 52, 31);
+    return s;
+  }
+
+  function interior(P, seed) {
+    var r = rng(seed), id = "i" + seed, s = "";
+    var warm = P === PAL.dusk || P === PAL.sand || P === PAL.night;
+    var wall = warm ? "#cdbfae" : "#e9e6df", wl = warm ? "#a99a88" : "#d2cec4", fl = warm ? "#6b5646" : "#b9a68d", ce = warm ? "#e2d8ca" : "#f7f5ef";
+    s += '<defs><linearGradient id="' + id + 's" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + P.sky[0] + '"/><stop offset="1" stop-color="' + P.sky[2] + '"/></linearGradient></defs>';
+    s += rect(0, 0, W, H, wall);
+    s += poly([[0, 0], [800, 0], [590, 120], [210, 120]], ce) + poly([[0, 520], [800, 520], [590, 392], [210, 392]], fl);
+    s += poly([[0, 0], [210, 120], [210, 392], [0, 520]], wl) + poly([[800, 0], [590, 120], [590, 392], [800, 520]], wl, ' opacity=".8"');
+    s += rect(250, 150, 300, 205, "url(#" + id + "s)");
+    s += rect(248, 300, 304, 55, P.far, ' opacity=".6"');
+    [250, 350, 450, 548].forEach(function (x) { s += rect(x - 2, 150, 4, 205, "#2a2622"); });
+    s += rect(250, 148, 300, 4, "#2a2622") + rect(250, 353, 300, 4, "#2a2622");
+    s += poly([[250, 392], [550, 392], [700, 520], [150, 520]], "#fff", ' opacity=".13"');
+    s += '<ellipse cx="400" cy="462" rx="210" ry="34" fill="' + (warm ? "#3c5a66" : "#c98a5a") + '" opacity=".75"/>';
+    s += rect(70, 420, 250, 62, warm ? "#d8c6ac" : "#3f5c6b", ' rx="14"') + rect(70, 396, 250, 36, warm ? "#c9b599" : "#36505d", ' rx="12"');
+    s += rect(430, 452, 150, 14, "#2a2622", ' rx="3"') + rect(446, 466, 6, 30, "#2a2622") + rect(558, 466, 6, 30, "#2a2622");
+    s += rect(399, 60, 2, 96, "#2a2622") + '<circle cx="400" cy="170" r="' + f(16 + r() * 8) + '" fill="' + P.lit + '"/>';
+    s += rect(650, 440, 44, 50, "#2a2622", ' rx="4"') + '<ellipse cx="672" cy="410" rx="34" ry="46" fill="' + P.tree + '"/><ellipse cx="660" cy="398" rx="20" ry="30" fill="' + P.tree2 + '"/>';
+    s += poly([[60, 150], [150, 190], [150, 300], [60, 290]], "#2a2622") + poly([[68, 162], [142, 196], [142, 292], [68, 282]], P.sky[1]);
+    return s;
+  }
+
+  function plan(seed) {
+    var r = rng(seed), ink = "#e8ecf2", blue = "#4d8dff", s = rect(0, 0, W, H, "#0f1216"), i;
+    for (i = 0; i < 20; i++) s += rect(i * 44, 0, 1, H, "#fff", ' opacity=".04"');
+    for (i = 0; i < 13; i++) s += rect(0, i * 44, W, 1, "#fff", ' opacity=".04"');
+    var L = function (d, w, c, dash) { return '<path d="' + d + '" fill="none" stroke="' + (c || ink) + '" stroke-width="' + w + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : "") + '/>'; };
+    s += L("M150 130 H520 V230 H650 V400 H150 Z", 7);
+    s += L("M330 130 V270 M150 270 H420 M420 230 V400 M520 230 H420 M520 315 H650", 3.5);
+    s += L("M330 300 a40 40 0 0 1 40 -30 M420 340 a34 34 0 0 0 -34 34 M565 315 a30 30 0 0 1 30 30", 1.4);
+    for (i = 0; i < 9; i++) s += L("M" + (438 + i * 9) + " 240 V300", 1.2);
+    s += L("M170 150 h90 v70 h-90 Z M350 150 h120 v44 h-120 Z M170 300 h140 v80 h-140 Z M540 250 h90 v44 h-90 Z", 1.2, "#8f97a3");
+    s += L("M650 400 H720 V250 H650", 1.6, ink, "7 6");
+    s += L("M150 96 H520 M150 88 V104 M330 88 V104 M520 88 V104 M110 130 V400 M102 130 H118 M102 270 H118 M102 400 H118", 1.3, blue);
+    [[150, 440, "A"], [330, 440, "B"], [520, 440, "C"], [650, 440, "D"]].forEach(function (g) {
+      s += L("M" + g[0] + " 400 V424", 1, blue, "4 4") + '<circle cx="' + g[0] + '" cy="' + g[1] + '" r="14" fill="none" stroke="' + blue + '" stroke-width="1.3"/>' +
+        '<text x="' + g[0] + '" y="' + (g[1] + 5) + '" fill="' + blue + '" font-family="Archivo, sans-serif" font-size="14" text-anchor="middle">' + g[2] + "</text>";
+    });
+    s += '<text x="335" y="84" fill="' + blue + '" font-family="Archivo, sans-serif" font-size="13" text-anchor="middle">' + (11 + Math.floor(r() * 6)) + '.40</text>';
+    s += '<circle cx="716" cy="118" r="20" fill="none" stroke="' + ink + '" stroke-width="1.3"/>' + poly([[716, 100], [724, 126], [716, 120], [708, 126]], ink);
+    return s;
+  }
+
+  var page = (new URLSearchParams(location.search).get("p")) || "projects";
+  var el = document.getElementById(page) || document.getElementById("projects");
+  el.classList.add("on");
+  Array.prototype.forEach.call(el.querySelectorAll("[data-art]"), function (node) {
+    var type = node.getAttribute("data-art"), seed = Number(node.getAttribute("data-seed")) || 1, P = PAL[node.getAttribute("data-pal") || "dusk"];
+    var body = type === "plan" ? plan(seed) : (type === "interior" ? interior(P, seed) : exterior(type, P, seed));
+    node.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' + body + "</svg>";
+  });
+})();
+</script>
+</body>
+</html>

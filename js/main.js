@@ -48,34 +48,40 @@
   var BASE = {
     az: 0.75, el: 0.3, dist: 78, tx: 2, ty: 9, tz: -1, ox: 0.2, oy: 0, sway: 0.08,
     world: 1, grid: 1, context: 0, found: 1, floor: 0, struct: 1, slabs: 1, blocks: 0, crane: 0, scaffold: 0,
-    services: 0, facade: 1, roof: 1, beacon: 0, dims: 0, explode: 0, logo: 0, proton: 0, tagSite: 0, tagExp: 0
+    services: 0, facade: 1, roof: 1, beacon: 0, dims: 0, land: 0, explode: 0, logo: 0, proton: 0, tagSite: 0, tagExp: 0,
+    // real: how solid the built parts are. ghost: how visible the unbuilt design model is. lights: windows lit.
+    real: 1, ghost: 0, lights: 0, pside: 1
   };
   var KEYS = Object.keys(BASE);
   function S(o) { var s = {}, k; for (k in BASE) s[k] = BASE[k]; for (k in o) s[k] = o[k]; return s; }
-  var ROLES_VIEW = { az: 0.9, el: 0.42, dist: 96, tx: 1, ty: 8.5, tz: -1, floor: 1, blocks: 1, crane: 1, scaffold: 1, beacon: 1 };
+  var ROLES_VIEW = { az: 0.9, el: 0.42, dist: 96, tx: 1, ty: 8.5, tz: -1, floor: 1, blocks: 1, crane: 1, scaffold: 1, beacon: 1, lights: 0.5 };
   function R(o) { var s = S(ROLES_VIEW), k; for (k in o) s[k] = o[k]; return s; }
 
+  // The walkthrough starts from the design model (lines only). From the foundation on, what is built
+  // turns solid while the rest of the model waits as a ghost, and it ends as a finished, lit building.
   var STATES = {
-    logo: S({ world: 0, grid: 0, found: 0, struct: 0, slabs: 0, facade: 0, roof: 0, logo: 1, ox: 0, az: 1.05, el: 0.4, dist: 116, moy: 0 }),
-    site: S({ context: 1, facade: 0.5, roof: 0, crane: 1, scaffold: 1, dims: 1, tagSite: 1, moy: 0.2 }),
-    ch1: S({ az: 0.6, el: 0.15, dist: 44, tx: 0, ty: -1.2, tz: 0, struct: 0, slabs: 0, facade: 0, roof: 0 }),
-    ch2: S({ az: 0.95, el: 0.22, dist: 72, tx: 0, ty: 8.5, tz: 0, floor: 1, slabs: 0, facade: 0, roof: 0, dims: 1 }),
-    ch3: S({ az: 0.5, el: 0.66, dist: 70, tx: 0, ty: 8, tz: 0, floor: 0.25, blocks: 1, facade: 0, roof: 0 }),
-    ch4: S({ az: 1.45, el: 0.26, dist: 86, tx: 3, ty: 11, tz: -3, facade: 0, roof: 0, crane: 1, scaffold: 1 }),
-    ch5: S({ az: 0.3, el: 0.2, dist: 60, tx: 0, ty: 9, tz: 0, facade: 0, roof: 0, crane: 1, services: 1 }),
-    ch6: S({ az: 0.22, el: 0.1, dist: 74, tx: 0, ty: 9.5, tz: 0 }),
-    exploded: S({ az: 0.785, el: 0.5, dist: 132, tx: 0, ty: 16, tz: 0, ox: 0, oy: 0.09, fitH: 900, explode: 1, floor: 0.6, blocks: 1, services: 1, beacon: 1, tagExp: 1, grid: 0.3, moy: 0.03 }),
+    logo: S({ world: 0, grid: 0, found: 0, struct: 0, slabs: 0, facade: 0, roof: 0, real: 0, logo: 1, ox: 0, az: 1.05, el: 0.4, dist: 116, moy: 0 }),
+    site: S({ real: 0, context: 1, dims: 1, tagSite: 1, moy: 0.2 }),
+    ch1: S({ az: 0.6, el: 0.15, dist: 44, tx: 0, ty: -1.2, tz: 0, struct: 0, slabs: 0, facade: 0, roof: 0, ghost: 0.16 }),
+    ch2: S({ az: 0.95, el: 0.22, dist: 72, tx: 0, ty: 8.5, tz: 0, floor: 1, slabs: 0, facade: 0, roof: 0, dims: 1, ghost: 0.15 }),
+    ch3: S({ az: 0.5, el: 0.66, dist: 70, tx: 0, ty: 8, tz: 0, floor: 0.25, blocks: 1, facade: 0, roof: 0, ghost: 0.13 }),
+    ch4: S({ az: 1.45, el: 0.26, dist: 86, tx: 3, ty: 11, tz: -3, facade: 0, roof: 0, crane: 1, scaffold: 1, ghost: 0.12 }),
+    ch5: S({ az: 0.3, el: 0.2, dist: 60, tx: 0, ty: 9, tz: 0, facade: 0, roof: 0, crane: 1, services: 1, ghost: 0.12 }),
+    ch6: S({ az: 0.62, el: 0.14, dist: 78, tx: 0, ty: 9.5, tz: 0, lights: 1, land: 1, grid: 0.45 }),
+    exploded: S({ az: 0.785, el: 0.5, dist: 132, tx: 0, ty: 16, tz: 0, ox: 0, oy: 0.09, fitH: 900, explode: 1, floor: 0.6, blocks: 1, services: 1, beacon: 1, tagExp: 1, grid: 0.3, lights: 0.5, moy: 0.03 }),
     web: R({ world: 0, ox: 0, moy: 0 }),
-    proton: R({ world: 0, ox: 0, proton: 1, moy: 0 }),
+    protonR: R({ world: 0, ox: 0, proton: 1, pside: 1, moy: 0 }),
+    protonL: R({ world: 0, ox: 0, proton: 1, pside: -1, moy: 0 }),
     roles: R({ ox: 0.24, moy: -0.25 }),
     rolesOff: R({ ox: 0.24, world: 0, moy: -0.25 }),
-    contact: S({ az: -0.55, el: 0.2, dist: 118, tx: 0, ty: 10, tz: 0, ox: 0, oy: -0.1, context: 1, beacon: 1, sway: 0.14, moy: -0.12 }),
-    contactOff: S({ az: -0.55, el: 0.2, dist: 118, tx: 0, ty: 10, tz: 0, ox: 0, oy: -0.3, context: 1, beacon: 1, world: 0, moy: -0.3 })
+    contact: S({ az: -0.55, el: 0.2, dist: 118, tx: 0, ty: 10, tz: 0, ox: 0, oy: -0.1, context: 1, beacon: 1, lights: 1, land: 1, sway: 0.14, moy: -0.12 }),
+    contactOff: S({ az: -0.55, el: 0.2, dist: 118, tx: 0, ty: 10, tz: 0, ox: 0, oy: -0.3, context: 1, beacon: 1, lights: 1, land: 1, world: 0, moy: -0.3 })
   };
   var STOPS = [
     ["#hero", "logo"], ["#site", "site"], ["#ch-foundation", "ch1"], ["#ch-structure", "ch2"], ["#ch-floors", "ch3"],
     ["#ch-site", "ch4"], ["#ch-services", "ch5"], ["#ch-envelope", "ch6"], ["#modules", "exploded"], ["#website", "web"],
-    ["#proton-head", "proton"], ["#proton-end", "proton"], ["#roles", "roles"], ["#trust", "rolesOff"],
+    ["#prow-1", "protonR"], ["#prow-2", "protonL"], ["#prow-3", "protonR"], ["#prow-4", "protonL"], ["#prow-5", "protonR"],
+    ["#prow-6", "protonL"], ["#roles", "roles"], ["#security", "rolesOff"],
     ["#contact", "contact"], ["#contact-body", "contactOff"]
   ];
   var stops = STOPS.map(function (d) { return { el: $(d[0]), name: d[1], c: 0, s: null }; }).filter(function (s) { return s.el; });
@@ -98,6 +104,13 @@
       var r = s.el.getBoundingClientRect();
       s.c = r.top + y + r.height * 0.5;
       s.s = adjust(STATES[s.name]);
+      // Proton rows: remember where the card is, so the orb can look at it
+      var card = s.el.querySelector(".prow__card");
+      if (card) {
+        var cr = card.getBoundingClientRect();
+        s.gx = ((cr.left + cr.width / 2) / window.innerWidth) * 2 - 1;
+        s.gy = cr.top + y + cr.height / 2;
+      }
     });
     if (heroEl && heroInner) {
       heroBox.top = heroEl.getBoundingClientRect().top + y;
@@ -109,9 +122,15 @@
     var y = window.scrollY + vh * 0.5, i = 0, k;
     while (i < stops.length - 2 && y >= stops[i + 1].c) i++;
     var a = stops[i], b = stops[i + 1];
-    var t = smooth(0.12, 0.88, (y - a.c) / Math.max(1, b.c - a.c));
+    var raw = (y - a.c) / Math.max(1, b.c - a.c), t = smooth(0.12, 0.88, raw);
     for (k = 0; k < KEYS.length; k++) out[KEYS[k]] = a.s[KEYS[k]] + (b.s[KEYS[k]] - a.s[KEYS[k]]) * t;
+    // the orb stays beside a card for longer, then crosses quickly
+    out.pside = a.s.pside + (b.s.pside - a.s.pside) * smooth(0.3, 0.7, raw);
     active = t < 0.5 ? i : i + 1;
+    if (scene) {
+      var st = stops[active];
+      if (st.gy !== undefined) scene.setGaze(st.gx, -(((st.gy - window.scrollY) / vh) * 2 - 1)); else scene.setGaze();
+    }
     // The logo sits in the free space above the hero text and scrolls away with it.
     if (scene) scene.setLogoBox(((heroBox.top + heroBox.bottom) / 2 - window.scrollY) / vh, (heroBox.bottom - heroBox.top) / vh);
     return out;
@@ -162,16 +181,21 @@
   /* ---------- websites: tilted pages that scroll inside their frames ---------- */
 
   var stage = $("#web-stage"), plane = $(".web__plane");
-  var shots = $$(".shot__view img").map(function (img) {
-    return { img: img, view: img.parentNode, from: Number(img.getAttribute("data-from")), to: Number(img.getAttribute("data-to")), h: 0, max: 0 };
+  var shots = $$(".shot__page").map(function (el) {
+    return {
+      el: el, view: el.parentNode, from: Number(el.getAttribute("data-from")), to: Number(el.getAttribute("data-to")),
+      ratio: Number(el.getAttribute("data-h")) / Number(el.getAttribute("data-w")), h: 0, max: 0
+    };
   });
-  var tilt = { x: 0, y: 0, tx: 0, ty: 0 };
+  var globeCanvas = $("#web-globe");
+  var globe = globeCanvas && window.HourlineGlobe ? window.HourlineGlobe.create(globeCanvas) : null;
+  var tilt = { x: 0, y: 0, tx: 0, ty: 0 }, frame = 0;
   function measureShots() {
     shots.forEach(function (s) {
-      var w = s.view.clientWidth;
-      s.h = w * (Number(s.img.getAttribute("height")) / Number(s.img.getAttribute("width")));
+      s.h = s.view.clientWidth * s.ratio;
       s.max = Math.max(0, s.h - s.view.clientHeight);
     });
+    if (globe) globe.resize();
   }
   if (stage) {
     stage.addEventListener("pointermove", function (e) {
@@ -181,7 +205,7 @@
     });
     stage.addEventListener("pointerleave", function () { tilt.tx = 0; tilt.ty = 0; });
   }
-  function tick() {
+  function tick(now) {
     requestAnimationFrame(tick);
     if (!stage) return;
     var r = stage.getBoundingClientRect();
@@ -195,8 +219,10 @@
     plane.style.setProperty("--rx", (-tilt.y * 7).toFixed(2) + "deg");
     for (var i = 0; i < shots.length; i++) {
       var s = shots[i], off = Math.min(s.max, (s.from + (s.to - s.from) * p) * s.h);
-      s.img.style.transform = "translate3d(0," + (-off).toFixed(1) + "px,0)";
+      s.el.style.transform = "translate3d(0," + (-off).toFixed(1) + "px,0)";
     }
+    // the globe on the home page: spins, at half the frame rate to stay light
+    if (globe && (frame++ % 2 === 0)) globe.draw(reduce ? 4 : (now || 0) / 1000);
   }
 
   /* ---------- Proton conversation plays in order once it is on screen ---------- */

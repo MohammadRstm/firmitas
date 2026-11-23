@@ -44,7 +44,7 @@
         <a href="#website">Websites</a>
         <a href="#proton">Proton AI</a>
         <a href="#roles">Roles</a>
-        <a href="#trust">Security</a>
+        <a href="#security">Security</a>
       </nav>
       <a class="btn btn--primary nav__cta" href="#contact">Book a demo</a>
       <button class="nav__toggle" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
@@ -56,7 +56,7 @@
       <a href="#website">Websites</a>
       <a href="#proton">Proton AI</a>
       <a href="#roles">Roles</a>
-      <a href="#trust">Security</a>
+      <a href="#security">Security</a>
       <a class="btn btn--primary" href="#contact">Book a demo</a>
     </div>
   </header>
@@ -233,7 +233,7 @@
       </div>
     </section>
 
-    <!-- WEBSITES: a real site built on Hourline -->
+    <!-- WEBSITES: tilted pages of a studio site. The home page is a real capture with a live globe drawn over it; the rest are samples from tools/mock-sites.html -->
     <section class="web solid" id="website">
       <div class="wrap web__grid">
         <div class="web__copy reveal">
@@ -245,26 +245,26 @@
             <li><i class="ph ph-globe-hemisphere-east"></i><div><b>Projects on a globe.</b> Pick a country and town from built-in lists and the pin places itself.</div></li>
             <li><i class="ph ph-chart-line-up"></i><div><b>Visitors at a glance.</b> Channels, countries, top pages and the last 30 minutes, with no individual tracking.</div></li>
           </ul>
-          <a class="web__link" href="https://id-indetails.com" target="_blank" rel="noopener">Built and run on Hourline: id-indetails.com <i class="ph ph-arrow-up-right"></i></a>
         </div>
 
-        <div class="web__stage" id="web-stage" role="img" aria-label="Pages of id-indetails.com, an architecture studio's website built on Hourline">
+        <div class="web__stage" id="web-stage" role="img" aria-label="Sample pages of a studio website run from Hourline">
           <div class="web__glow" aria-hidden="true"></div>
           <div class="web__plane">
-            <figure class="shot shot--c"><div class="shot__bar"><i></i><i></i><i></i><span>id-indetails.com/studio</span></div><div class="shot__view"><img src="assets/showcase/studio.webp" width="1440" height="2191" alt="" loading="lazy" decoding="async" data-from="0" data-to="0.32"></div></figure>
-            <figure class="shot shot--b"><div class="shot__bar"><i></i><i></i><i></i><span>id-indetails.com/projects</span></div><div class="shot__view"><img src="assets/showcase/project.webp" width="1440" height="3095" alt="" loading="lazy" decoding="async" data-from="0" data-to="0.5"></div></figure>
-            <figure class="shot shot--a"><div class="shot__bar"><i></i><i></i><i></i><span>id-indetails.com</span></div><div class="shot__view"><img src="assets/showcase/home.webp" width="1440" height="2106" alt="" loading="lazy" decoding="async" data-from="0" data-to="0.1"></div></figure>
-            <figure class="shot shot--d"><div class="shot__bar"><i></i><i></i><i></i><span>id-indetails.com</span></div><div class="shot__view"><img src="assets/showcase/home.webp" width="1440" height="2106" alt="" loading="lazy" decoding="async" data-from="0.44" data-to="0.6"></div></figure>
+            <figure class="shot shot--c"><div class="shot__bar"><i></i><i></i><i></i><span>your-website.com/studio</span></div><div class="shot__view"><div class="shot__page" data-w="1440" data-h="2196" data-from="0" data-to="0.3"><img src="assets/showcase/studio.webp" width="1440" height="2196" alt="" decoding="async"></div></div></figure>
+            <figure class="shot shot--b"><div class="shot__bar"><i></i><i></i><i></i><span>your-website.com/projects/hillside-villas</span></div><div class="shot__view"><div class="shot__page" data-w="1440" data-h="2667" data-from="0" data-to="0.5"><img src="assets/showcase/project.webp" width="1440" height="2667" alt="" decoding="async"></div></div></figure>
+            <figure class="shot shot--a"><div class="shot__bar"><i></i><i></i><i></i><span>your-website.com</span></div><div class="shot__view"><div class="shot__page" data-w="1440" data-h="2106" data-from="0" data-to="0.06"><img src="assets/showcase/home.webp" width="1440" height="2106" alt="" decoding="async"><canvas class="shot__globe" id="web-globe" aria-hidden="true"></canvas></div></div></figure>
+            <figure class="shot shot--d"><div class="shot__bar"><i></i><i></i><i></i><span>your-website.com/projects</span></div><div class="shot__view"><div class="shot__page" data-w="1440" data-h="2208" data-from="0.04" data-to="0.4"><img src="assets/showcase/projects.webp" width="1440" height="2208" alt="" decoding="async"></div></div></figure>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- PROTON: the orb lives on the canvas and watches the pointer -->
+    <!-- PROTON: the orb lives on the canvas. It crosses from side to side and looks at each card in turn -->
     <section class="proton" id="proton">
       <div class="wrap">
-        <div class="proton__col">
-          <div class="proton__head" id="proton-head">
+
+        <div class="prow prow--left" id="prow-1">
+          <div class="prow__card prow__card--plain">
             <p class="eyebrow eyebrow--proton">Proton, the AI assistant</p>
             <h2>Meet Proton, your firm's financial wizard.</h2>
             <p class="lead">It understands your company's finances better than you do, and it looks ahead for your firm's next opportunity.</p>
@@ -272,26 +272,58 @@
               <span>English</span><span lang="ar" dir="rtl">العربية</span><span lang="fr">Français</span>
             </div>
           </div>
+        </div>
 
-          <ul class="wizard reveal">
-            <li><i class="ph ph-brain"></i><div><b>It knows every project's numbers.</b> Projects, sites, invoices, budgets and cash, read live from the same calculator as every screen.</div></li>
-            <li><i class="ph ph-binoculars"></i><div><b>It looks ahead.</b> What a variation order, an extra cost or a late finish would do to your profit. How many working days of cash a site has left.</div></li>
-            <li><i class="ph ph-megaphone-simple"></i><div><b>It tells you first.</b> A briefing of the three things worth your attention, and what changed since last week.</div></li>
-          </ul>
+        <div class="prow prow--right" id="prow-2">
+          <div class="prow__card reveal">
+            <i class="ph ph-brain prow__icon"></i>
+            <h3>It knows every project's numbers.</h3>
+            <p>Projects, sites, invoices, budgets and cash, read live from the same calculator as every screen.</p>
+            <div class="msg msg--user">How is Harbour Loft doing?</div>
+            <div class="ans-table">
+              <div><span>Agreed</span><span class="mono">$48,200</span></div>
+              <div><span>Cost so far</span><span class="mono">$42,110</span></div>
+              <div><span>Profit</span><span class="mono good">$6,090</span></div>
+            </div>
+            <p class="sample">Sample answer</p>
+          </div>
+        </div>
 
-          <div class="chatwrap reveal" aria-label="Sample conversation with Proton">
+        <div class="prow prow--left" id="prow-3">
+          <div class="prow__card reveal">
+            <i class="ph ph-binoculars prow__icon"></i>
+            <h3>It looks ahead.</h3>
+            <p>Ask what a variation order, an extra cost or a late finish would do to your profit. Nothing is saved.</p>
+            <div class="msg msg--user">What if Seaview Duplex finishes 6 weeks late?</div>
+            <div class="ans-table">
+              <div><span>Profit today</span><span class="mono">$21,400</span></div>
+              <div><span>Profit if late</span><span class="mono warn">$14,900</span></div>
+              <div><span>Profit floor</span><span class="mono good">Still passes</span></div>
+            </div>
+            <p class="sample">Sample answer</p>
+          </div>
+        </div>
+
+        <div class="prow prow--right" id="prow-4">
+          <div class="prow__card reveal">
+            <i class="ph ph-megaphone-simple prow__icon"></i>
+            <h3>It tells you first.</h3>
+            <p>A briefing of the three things worth your attention, and what changed since last week.</p>
+            <ol class="brief">
+              <li><b>Seaview Duplex</b> has 7 working days of cash left at today's crew.</li>
+              <li><b>Floor tiles</b> cost 31% more than your last three purchases.</li>
+              <li><b>Two invoices</b> are more than 12 days overdue.</li>
+            </ol>
+            <p class="sample">Sample briefing</p>
+          </div>
+        </div>
+
+        <div class="prow prow--left" id="prow-5">
+          <div class="prow__card reveal" aria-label="Sample conversation with Proton">
+            <i class="ph ph-hand-pointing prow__icon"></i>
+            <h3>It prepares the work. You press Confirm.</h3>
             <div class="chat" id="chat">
-              <div class="msg msg--user">What if Seaview Duplex finishes 6 weeks late?</div>
-              <div class="msg msg--ai">
-                <p>Six more weeks of crew at today's day rate:</p>
-                <div class="ans-table">
-                  <div><span>Profit today</span><span class="mono">$21,400</span></div>
-                  <div><span>Profit if late</span><span class="mono warn">$14,900</span></div>
-                  <div><span>Profit floor</span><span class="mono good">Still passes</span></div>
-                </div>
-                <p class="based">Based on the site's account figures and labour weeks. Nothing was saved.</p>
-              </div>
-              <div class="msg msg--user">Record a payment of $12,000 on it.</div>
+              <div class="msg msg--user">Record a payment of $12,000 on Seaview Duplex.</div>
               <div class="msg msg--card">
                 <p class="card__kicker"><i class="ph ph-lock-key"></i> Needs your confirmation</p>
                 <p><b>Record payment</b> of <b class="mono">$12,000</b> on Seaview Duplex, on account.</p>
@@ -302,16 +334,22 @@
             </div>
             <p class="sample">Sample conversation</p>
           </div>
-
-          <ul class="guards reveal" id="proton-end">
-            <li><i class="ph ph-hand-pointing"></i><div><b>It can only propose.</b> Every change is a card a person confirms. Risky ones ask for a typed phrase.</div></li>
-            <li><i class="ph ph-calculator"></i><div><b>Code does the math.</b> Figures and charts come from the system's tools, never from the model.</div></li>
-            <li><i class="ph ph-key"></i><div><b>Your permissions, not more.</b> It sees exactly what the person asking can see.</div></li>
-            <li><i class="ph ph-eye-slash"></i><div><b>Individual pay stays private.</b> Salaries, rates and bank details never reach it.</div></li>
-            <li><i class="ph ph-database"></i><div><b>Read-only while it thinks.</b> The database refuses any write during a tool run.</div></li>
-            <li><i class="ph ph-gauge"></i><div><b>Predictable cost.</b> A monthly budget, a per-person allowance and a usage dashboard.</div></li>
-          </ul>
         </div>
+
+        <div class="prow prow--right" id="prow-6">
+          <div class="prow__card reveal">
+            <i class="ph ph-shield-check prow__icon"></i>
+            <h3>A wizard with rules.</h3>
+            <ul class="guards">
+              <li><i class="ph ph-calculator"></i><div><b>Code does the math.</b> Figures and charts come from the system's tools, never from the model.</div></li>
+              <li><i class="ph ph-key"></i><div><b>Your permissions, not more.</b> It sees exactly what the person asking can see.</div></li>
+              <li><i class="ph ph-eye-slash"></i><div><b>Individual pay stays private.</b> Salaries, rates and bank details never reach it.</div></li>
+              <li><i class="ph ph-database"></i><div><b>Read-only while it thinks.</b> The database refuses any write during a tool run.</div></li>
+              <li><i class="ph ph-gauge"></i><div><b>Predictable cost.</b> A monthly budget, a per-person allowance and a usage dashboard.</div></li>
+            </ul>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -385,18 +423,78 @@
       </div>
     </section>
 
-    <!-- TRUST -->
-    <section class="trust solid" id="trust">
-      <div class="wrap trust__grid">
-        <div class="trust__copy reveal">
-          <h2>Built to be checked.</h2>
-          <p>Accounts exist only by invitation. A stolen session is detected, and every session for that person ends at once. Money, pay and permission changes are kept in an activity feed with their previous values.</p>
+    <!-- SECURITY: authorization, authentication, data protection -->
+    <section class="security solid" id="security">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <h2>Security in three layers.</h2>
+          <p>Who may do what, who is really signing in, and where your data can and cannot go.</p>
         </div>
+
+        <div class="sec-grid">
+          <article class="sec sec--authz reveal">
+            <header>
+              <i class="ph ph-users-three"></i>
+              <div><p class="sec__kicker">Authorization</p><h3>Role-based access, down to a single permission.</h3></div>
+            </header>
+            <div class="matrix" role="img" aria-label="Sample permission matrix for three people">
+              <div class="matrix__row matrix__row--head"><span>Permission</span><span>Owner</span><span>Accountant</span><span>Site engineer</span></div>
+              <div class="matrix__row"><span>See the money <code>financial:view</code></span><i class="yes ph-fill ph-check-circle"></i><i class="grant ph-fill ph-plus-circle"></i><i class="no ph ph-minus"></i></div>
+              <div class="matrix__row"><span>Set site prices <code>project:pricing_manage</code></span><i class="yes ph-fill ph-check-circle"></i><i class="no ph ph-minus"></i><i class="no ph ph-minus"></i></div>
+              <div class="matrix__row"><span>Draft a BOQ <code>boq:create</code></span><i class="yes ph-fill ph-check-circle"></i><i class="no ph ph-minus"></i><i class="yes ph-fill ph-check-circle"></i></div>
+              <div class="matrix__row"><span>Read every site log <code>site_log:view_all</code></span><i class="yes ph-fill ph-check-circle"></i><i class="no ph ph-minus"></i><i class="no ph ph-minus"></i></div>
+              <div class="matrix__row"><span>Approve advances <code>salary_advance:manage</code></span><i class="yes ph-fill ph-check-circle"></i><i class="no ph ph-minus"></i><i class="no ph ph-minus"></i></div>
+              <p class="matrix__note"><i class="grant ph-fill ph-plus-circle"></i> Granted to this one person, on top of their role. Sample data.</p>
+            </div>
+            <ul class="sec__list">
+              <li><b>67 permissions.</b> Roles only set the defaults.</li>
+              <li><b>Per-person overrides.</b> Grant or revoke one permission for one person.</li>
+              <li><b>No escalation.</b> You can only hand out what you hold yourself.</li>
+              <li><b>Checked on every request.</b> A business you can't see answers "not found".</li>
+            </ul>
+          </article>
+
+          <article class="sec sec--authn reveal">
+            <header>
+              <i class="ph ph-fingerprint"></i>
+              <div><p class="sec__kicker">Authentication</p><h3>Only invited people, and sessions that expire.</h3></div>
+            </header>
+            <div class="sessions" role="img" aria-label="Sample session list">
+              <div class="sessions__row"><i class="ph ph-laptop"></i><span>Laptop, browser</span><em>Active now</em></div>
+              <div class="sessions__row"><i class="ph ph-device-mobile"></i><span>Phone app</span><em>2 days ago</em></div>
+              <span class="btn btn--sm btn--light">End all sessions</span>
+            </div>
+            <ul class="sec__list">
+              <li><b>Invitation only.</b> No public sign-up. Links work once.</li>
+              <li><b>15-minute access tokens</b> that renew themselves in the background.</li>
+              <li><b>Theft detection.</b> A reused token ends every session for that person.</li>
+              <li><b>Rate-limited sign-in,</b> and passwords kept only as salted hashes.</li>
+            </ul>
+          </article>
+
+          <article class="sec sec--data reveal">
+            <header>
+              <i class="ph ph-lock-key"></i>
+              <div><p class="sec__kicker">Data encryption and leak protection</p><h3>Your numbers stay yours, from the AI too.</h3></div>
+            </header>
+            <div class="aiwall" role="img" aria-label="What reaches the AI and what never does">
+              <div><p>Reaches the AI</p><span>Project and site figures</span><span>Invoices and budgets</span><span>Hours by project</span></div>
+              <div class="aiwall__no"><p>Never reaches it</p><span>Salaries and rates</span><span>Bank details</span><span>Passwords and tokens</span></div>
+            </div>
+            <ul class="sec__list">
+              <li><b>Encrypted in transit.</b> HTTPS only, and browsers are told to refuse anything else.</li>
+              <li><b>Private file storage.</b> Files open through links that expire in minutes.</li>
+              <li><b>No writes by the AI.</b> The database refuses every change while it works.</li>
+              <li><b>No amounts in notifications</b> about pay or advances.</li>
+            </ul>
+          </article>
+        </div>
+
         <dl class="stats reveal">
           <div><dt>Permissions you can grant one by one</dt><dd class="mono" data-count="67">67</dd></div>
           <div><dt>Minutes an access token lives</dt><dd class="mono" data-count="15">15</dd></div>
+          <div><dt>Minutes a file download link lasts</dt><dd class="mono" data-count="5">5</dd></div>
           <div><dt>Critical findings in the security audit</dt><dd class="mono" data-count="0">0</dd></div>
-          <div><dt>Ways in: web, installable app, native phone</dt><dd class="mono" data-count="3">3</dd></div>
         </dl>
       </div>
     </section>
@@ -464,6 +562,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
   <script src="js/scene.js"></script>
+  <script src="js/globe.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
