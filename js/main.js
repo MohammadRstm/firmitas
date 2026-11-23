@@ -52,7 +52,8 @@
     // real: how solid the built parts are. ghost: how visible the unbuilt design model is. lights: windows lit.
     real: 1, ghost: 0, lights: 0, pside: 1,
     // sec: the security lock is on screen. secTurn: how many quarter turns its cards have made.
-    sec: 0, secTurn: 0
+    // secOpen: the finale of the security section, where the lock opens.
+    sec: 0, secTurn: 0, secOpen: 0
   };
   var KEYS = Object.keys(BASE);
   function S(o) { var s = {}, k; for (k in BASE) s[k] = BASE[k]; for (k in o) s[k] = o[k]; return s; }
@@ -83,12 +84,13 @@
     ["#hero", "logo"], ["#site", "site"], ["#ch-foundation", "ch1"], ["#ch-structure", "ch2"], ["#ch-floors", "ch3"],
     ["#ch-site", "ch4"], ["#ch-services", "ch5"], ["#ch-envelope", "ch6"], ["#modules", "exploded"], ["#website", "web"],
     ["#prow-1", "protonR"], ["#prow-2", "protonL"], ["#prow-3", "protonR"], ["#prow-4", "protonL"], ["#prow-5", "protonR"],
-    ["#prow-6", "protonL"], ["#roles", "roles"], ["#security", "security", 0.12], ["#security", "security", 0.9],
+    ["#prow-6", "protonL"], ["#roles", "roles"], ["#security", "security", 0.1], ["#security", "security", 0.92],
     ["#contact", "contact"], ["#contact-body", "contactOff"]
   ];
   // a stop sits at the middle of its element unless a third value says how far down it is (0 to 1)
   var stops = STOPS.map(function (d) { return { el: $(d[0]), name: d[1], f: d[2] === undefined ? 0.5 : d[2], c: 0, s: null }; }).filter(function (s) { return s.el; });
   var secEl = $("#security"), secBox = { top: 0, h: 1 }, secSteps = $$(".security__steps li"), lastStep = -1;
+  var secSafe = $(".security__safe"), secFade = $$(".security__head, .security__steps"), lastOpen = -1;
   var vh = window.innerHeight, narrow = false, active = 0, out = {};
   var heroEl = $("#hero"), heroInner = $(".hero__inner"), heroBox = { top: 68, bottom: 400 };
 
@@ -134,8 +136,11 @@
     out.pside = a.s.pside + (b.s.pside - a.s.pside) * smooth(0.3, 0.58, raw);
     active = t < 0.5 ? i : i + 1;
     // security: each card holds the front for a while, then the ring turns a quarter to the next one
-    var sp = clamp((window.scrollY - secBox.top) / Math.max(1, secBox.h - vh), 0, 1) * 3, si = Math.min(2, Math.floor(sp));
+    // The last stretch of the section is the finale, where the lock opens.
+    var sq = clamp((window.scrollY - secBox.top) / Math.max(1, secBox.h - vh), 0, 1);
+    var sp = clamp(sq / 0.72, 0, 1) * 3, si = Math.min(2, Math.floor(sp));
     out.secTurn = si + smooth(0.3, 0.7, sp - si);
+    out.secOpen = smooth(0.78, 0.97, sq);
     if (scene) {
       var st = stops[active];
       if (st.card) {
@@ -177,6 +182,13 @@
     if (protonBg && Math.abs(cur.proton - lastBg) > 0.004) {
       lastBg = cur.proton;
       protonBg.style.opacity = cur.proton.toFixed(3);
+    }
+    if (Math.abs(cur.secOpen - lastOpen) > 0.004) {
+      lastOpen = cur.secOpen;
+      // the section's heading and steps make way for the closing line under the open lock
+      var gone = (1 - smooth(0.05, 0.5, cur.secOpen)).toFixed(3);
+      for (i = 0; i < secFade.length; i++) secFade[i].style.opacity = gone;
+      if (secSafe) secSafe.style.opacity = smooth(0.5, 0.95, cur.secOpen).toFixed(3);
     }
     var step = Math.round(cur.secTurn);
     if (step !== lastStep) {

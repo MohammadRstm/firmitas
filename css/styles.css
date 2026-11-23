@@ -465,7 +465,7 @@ main, .footer { position: relative; z-index: 1; }
 
 /* Security: a glass lock with four cards turning around it. The canvas draws the lock, the cards
    and their dots; the list holds the real text for screen readers. */
-.security { height: 430vh; }
+.security { height: 560vh; }
 .security__pin {
   position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; justify-content: space-between;
   padding: calc(var(--nav-h) + 30px) 0 28px; pointer-events: none;
@@ -481,12 +481,18 @@ main, .footer { position: relative; z-index: 1; }
   transition: color .3s var(--ease), background-color .3s var(--ease), border-color .3s var(--ease);
 }
 .security__steps li.is-on { color: #fff; background: var(--accent); border-color: var(--accent-hi); }
+/* the closing line under the open lock; the page logic fades it in */
+.security__safe { position: absolute; left: 0; right: 0; top: 71%; padding: 0 28px; text-align: center; opacity: 0; }
+.security__safe h3 { font-size: clamp(2rem, 4.6vw, 3.6rem); color: var(--good); }
+.security__safe p { margin-top: 12px; color: var(--ink-2); font-size: 1.08rem; }
 .sec__kicker { font-family: var(--mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .14em; color: var(--accent-hi); margin-bottom: 8px; }
 
 /* Phones, and browsers without WebGL, get the four cards as a plain grid. */
 .sec-static .security { height: auto; padding: 84px 0; }
 .sec-static .security__pin { position: static; height: auto; display: block; padding: 0; pointer-events: auto; }
 .sec-static .security__steps { display: none; }
+.sec-static .security__safe { position: static; opacity: 1 !important; margin-top: 44px; }
+.sec-static .security__head { opacity: 1 !important; }
 .sec-static .security__cards {
   position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal;
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 1240px; margin: 36px auto 0; padding: 0 28px;

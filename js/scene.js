@@ -306,11 +306,11 @@
 
   // The lock: clear glass, brighter at grazing angles.
   var GLASS_FRAG = [
-    "uniform float uOpacity; varying vec3 vN; varying vec3 vV;",
+    "uniform float uOpacity; uniform vec3 uDeep; uniform vec3 uRim; varying vec3 vN; varying vec3 vV;",
     "void main() {",
     "  vec3 n = normalize(vN);",
     "  float fr = pow(1.0 - abs(dot(n, vV)), 2.0);",
-    "  vec3 col = mix(vec3(0.03, 0.12, 0.26), vec3(0.62, 0.82, 1.0), fr);",
+    "  vec3 col = mix(uDeep, uRim, fr);",
     "  vec3 h = normalize(normalize(vec3(-0.45, 0.75, 0.55)) + vV);",
     "  float sp = pow(abs(dot(n, h)), 60.0);",
     "  gl_FragColor = vec4(col + vec3(0.9, 0.95, 1.0) * sp * 0.8, clamp(0.08 + fr * 0.62 + sp * 0.7, 0.0, 1.0) * uOpacity);",
@@ -338,11 +338,12 @@
     "}"
   ].join("\n");
   var DOTS_FRAG = [
-    "uniform vec3 uColor; uniform vec3 uAccent; uniform float uOpacity;",
+    "uniform vec3 uColor; uniform vec3 uAccent; uniform float uOpacity; uniform float uGreen;",
     "varying float vBright; varying float vE;",
     "void main() {",
     "  float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard;",
     "  vec3 c = mix(uAccent, uColor, vBright * (1.0 - vE * 0.5));",
+    "  c = mix(c, vec3(0.45, 0.92, 0.66), uGreen);",
     "  gl_FragColor = vec4(c, smoothstep(0.5, 0.15, d) * uOpacity * 0.85 * mix(vBright, 0.5 + 0.4 * vBright, vE));",
     "}"
   ].join("\n");
@@ -955,14 +956,22 @@
     /* ---------- security: a glass lock with four cards turning around it (attached to the camera) ---------- */
 
     var secGroup = new THREE.Group(), secSpin = new THREE.Group(), lock = new THREE.Group(), secCards = [];
-    var SEC = { R: 8.5, w: 9.6, h: 5.4, cardY: -2.0, N: 1700 }, lockMat, keyMat, lockEdge, lockGlow;
+    var SEC = { R: 8.5, w: 9.6, h: 5.4, cardY: -2.0, N: 1700 }, lockMat, keyMat, lockEdge, lockGlow, lockGlowG;
+    // the shackle is its own group, hinged on its left leg, so the lock can open
+    var shackle = new THREE.Group(), shackleY = 0;
+    var LOCK_COL = {
+      deep: new THREE.Color(0.03, 0.12, 0.26), rim: new THREE.Color(0.62, 0.82, 1.0),
+      deepG: new THREE.Color(0.02, 0.2, 0.11), rimG: new THREE.Color(0.55, 1.0, 0.74),
+      edgeG: new THREE.Color(0x63c794), key: new THREE.Color(0xcfe6ff), keyG: new THREE.Color(0xd6f7e5)
+    };
     camera.add(secGroup);
     secGroup.add(lock);
     secGroup.add(secSpin);
     secGroup.visible = false;
     (function () {
       lockMat = new THREE.ShaderMaterial({
-        uniforms: { uOpacity: { value: 1 } }, vertexShader: CORE_VERT, fragmentShader: GLASS_FRAG,
+        uniforms: { uOpacity: { value: 1 }, uDeep: { value: LOCK_COL.deep.clone() }, uRim: { value: LOCK_COL.rim.clone() } },
+        vertexShader: CORE_VERT, fragmentShader: GLASS_FRAG,
         transparent: true, depthWrite: false, depthTest: false, side: THREE.DoubleSide
       });
       var w = 3.9, h = 3.1, r = 0.55, shape = new THREE.Shape();
@@ -981,13 +990,16 @@
       edges.renderOrder = 31;
       lock.add(edges);
       var arc = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.27, 14, 40, Math.PI), lockMat);
-      arc.position.y = h / 2 + 1.0; arc.renderOrder = 31;
-      lock.add(arc);
-      [-1.2, 1.2].forEach(function (x) {
+      arc.position.set(1.2, 1.0, 0); arc.renderOrder = 31;
+      shackle.add(arc);
+      [0, 2.4].forEach(function (x) {
         var leg = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 1.0, 14, 1, true), lockMat);
-        leg.position.set(x, h / 2 + 0.5, 0); leg.renderOrder = 31;
-        lock.add(leg);
+        leg.position.set(x, 0.5, 0); leg.renderOrder = 31;
+        shackle.add(leg);
       });
+      shackleY = h / 2;
+      shackle.position.set(-1.2, shackleY, 0);
+      lock.add(shackle);
       var hole = new THREE.Shape(), slot = new THREE.Shape();
       hole.absarc(0, 0.28, 0.36, 0, Math.PI * 2, false);
       slot.moveTo(-0.16, 0.2); slot.lineTo(0.16, 0.2); slot.lineTo(0.28, -0.72); slot.lineTo(-0.28, -0.72); slot.closePath();
@@ -1003,6 +1015,12 @@
       }));
       lockGlow.scale.setScalar(13); lockGlow.renderOrder = 29;
       lock.add(lockGlow);
+      lockGlowG = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: glowTexture([[0, "rgba(150,255,200,0.55)"], [0.4, "rgba(60,200,130,0.24)"], [1, "rgba(20,120,70,0)"]]),
+        transparent: true, opacity: 0, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending
+      }));
+      lockGlowG.scale.setScalar(15); lockGlowG.renderOrder = 29;
+      lock.add(lockGlowG);
       lock.position.y = 1.5;
     })();
 
@@ -1076,7 +1094,7 @@
         var pm = new THREE.ShaderMaterial({
           uniforms: {
             uB: { value: 1 }, uOpacity: { value: 0 }, uTime: { value: 0 }, uR: { value: SEC.R }, uPx: { value: px },
-            uColor: { value: U.line }, uAccent: { value: U.accent }
+            uColor: { value: U.line }, uAccent: { value: U.accent }, uGreen: { value: 0 }
           },
           vertexShader: DOTS_VERT, fragmentShader: DOTS_FRAG, transparent: true, depthTest: false, depthWrite: false
         });
@@ -1323,21 +1341,34 @@
         secGroup.position.set(0, attach.visH * 0.02, -ATTACH_D);
         secGroup.rotation.x = 0.2;
         secGroup.scale.setScalar(attach.secS * 0.88 * (0.6 + 0.4 * ease(sv)));
-        lock.rotation.y = Math.sin(stt * 0.55) * 0.32;
-        lock.position.y = 1.5 + Math.sin(stt * 0.9) * 0.12;
+        // The finale: past the last card the lock travels down the screen, its shackle lifts and
+        // swings open, and everything turns green.
+        var open = cur.secOpen, oe = ease(open), away = ease(open * 2.2);
+        lock.rotation.y = Math.sin(stt * 0.55) * 0.32 * (1 - oe * 0.6);
+        lock.position.y = 1.5 - 3.1 * oe + Math.sin(stt * 0.9) * 0.12;
+        lock.scale.setScalar(1 + 0.3 * oe);
+        shackle.position.y = shackleY + 1.0 * ease(open / 0.45);
+        shackle.rotation.y = -1.05 * ease((open - 0.35) / 0.65);
         lockMat.uniforms.uOpacity.value = sv;
+        lockMat.uniforms.uDeep.value.copy(LOCK_COL.deep).lerp(LOCK_COL.deepG, oe);
+        lockMat.uniforms.uRim.value.copy(LOCK_COL.rim).lerp(LOCK_COL.rimG, oe);
+        lockEdge.color.copy(U.accent).lerp(LOCK_COL.edgeG, oe);
+        keyMat.color.copy(LOCK_COL.key).lerp(LOCK_COL.keyG, oe);
         keyMat.opacity = (0.8 + 0.15 * Math.sin(stt * 2.2)) * sv;
         lockEdge.opacity = 0.55 * sv;
-        lockGlow.material.opacity = 0.55 * sv;
+        lockGlow.material.opacity = 0.55 * sv * (1 - oe);
+        lockGlowG.material.opacity = 0.75 * sv * oe;
         for (ci = 0; ci < secCards.length; ci++) {
           var sc = secCards[ci], ang = ci * (Math.PI / 2) - turn + Math.sin(stt * 0.5) * 0.02;
           // phi is how far the card has turned away from the front: 0 facing the viewer, pi at the back
           var phi = Math.abs(Math.atan2(Math.sin(ang), Math.cos(ang)));
           sc.pivot.rotation.y = ang;
-          sc.mat.opacity = sv * (1 - ease((phi - 0.14) / 0.36));
+          // in the finale every card, the front one too, breaks into dots
+          sc.mat.opacity = sv * (1 - ease((phi - 0.14) / 0.36)) * (1 - away);
           sc.plane.visible = sc.mat.opacity > 0.01;
-          sc.pm.uniforms.uB.value = ease((phi - 0.28) / 0.9);
-          sc.pm.uniforms.uOpacity.value = sv * ease((phi - 0.08) / 0.26);
+          sc.pm.uniforms.uB.value = Math.max(ease((phi - 0.28) / 0.9), away);
+          sc.pm.uniforms.uOpacity.value = sv * Math.max(ease((phi - 0.08) / 0.26), away) * (1 - 0.3 * oe);
+          sc.pm.uniforms.uGreen.value = oe;
           sc.pm.uniforms.uTime.value = stt;
           sc.pm.uniforms.uPx.value = px;
         }
