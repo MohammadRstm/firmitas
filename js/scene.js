@@ -957,8 +957,11 @@
 
     var secGroup = new THREE.Group(), secSpin = new THREE.Group(), lock = new THREE.Group(), secCards = [];
     var SEC = { R: 8.5, w: 9.6, h: 5.4, cardY: -2.0, N: 1700 }, lockMat, keyMat, lockEdge, lockGlow, lockGlowG;
-    // the shackle is its own group, hinged on its left leg, so the lock can open
+    // The shackle is its own group with its origin on the left leg. That leg is long and stays seated in the
+    // body, so the lock opens like a real padlock: the shackle slides up, the short right leg comes out of its
+    // socket, and the shackle swings round the leg that stayed in.
     var shackle = new THREE.Group(), shackleY = 0;
+    var SHACKLE = { lift: 1.05, hinge: 1.55, free: 0.35, swing: 0.8 };
     var LOCK_COL = {
       deep: new THREE.Color(0.03, 0.12, 0.26), rim: new THREE.Color(0.62, 0.82, 1.0),
       deepG: new THREE.Color(0.02, 0.2, 0.11), rimG: new THREE.Color(0.55, 1.0, 0.74),
@@ -992,14 +995,28 @@
       var arc = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.27, 14, 40, Math.PI), lockMat);
       arc.position.set(1.2, 1.0, 0); arc.renderOrder = 31;
       shackle.add(arc);
-      [0, 2.4].forEach(function (x) {
-        var leg = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 1.0, 14, 1, true), lockMat);
-        leg.position.set(x, 0.5, 0); leg.renderOrder = 31;
+      // each leg reaches down into the glass body: the hinge leg deep enough to stay in when the shackle is up
+      [[0, SHACKLE.hinge], [2.4, SHACKLE.free]].forEach(function (d) {
+        var len = 1.0 + d[1], leg = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, len, 14, 1, true), lockMat);
+        leg.position.set(d[0], 1.0 - len / 2, 0); leg.renderOrder = 31;
         shackle.add(leg);
+        // a flat end on the leg, which shows once it is out of the body
+        var tip = new THREE.Mesh(new THREE.CircleGeometry(0.27, 14), lockMat);
+        tip.rotation.x = Math.PI / 2; tip.position.set(d[0], -d[1], 0); tip.renderOrder = 31;
+        shackle.add(tip);
       });
       shackleY = h / 2;
       shackle.position.set(-1.2, shackleY, 0);
       lock.add(shackle);
+      // the two sockets on top of the body, so the empty one shows once the free leg is out
+      var ringPts = [], ri;
+      for (ri = 0; ri < 28; ri++) ringPts.push(new THREE.Vector3(Math.cos(ri / 28 * Math.PI * 2) * 0.4, 0, Math.sin(ri / 28 * Math.PI * 2) * 0.4));
+      var ringGeo = new THREE.BufferGeometry().setFromPoints(ringPts);
+      [-1.2, 1.2].forEach(function (x) {
+        var socket = new THREE.LineLoop(ringGeo, lockEdge);
+        socket.position.set(x, h / 2 + 0.14, 0); socket.renderOrder = 31;
+        lock.add(socket);
+      });
       var hole = new THREE.Shape(), slot = new THREE.Shape();
       hole.absarc(0, 0.28, 0.36, 0, Math.PI * 2, false);
       slot.moveTo(-0.16, 0.2); slot.lineTo(0.16, 0.2); slot.lineTo(0.28, -0.72); slot.lineTo(-0.28, -0.72); slot.closePath();
@@ -1341,14 +1358,15 @@
         secGroup.position.set(0, attach.visH * 0.02, -ATTACH_D);
         secGroup.rotation.x = 0.2;
         secGroup.scale.setScalar(attach.secS * 0.88 * (0.6 + 0.4 * ease(sv)));
-        // The finale: past the last card the lock travels down the screen, its shackle lifts and
-        // swings open, and everything turns green.
+        // The finale: past the last card the lock travels down the screen and opens, and everything turns green.
+        // The shackle slides up with its left leg still in the body, then swings round that leg, so the
+        // right leg ends up clear of its socket.
         var open = cur.secOpen, oe = ease(open), away = ease(open * 2.2);
         lock.rotation.y = Math.sin(stt * 0.55) * 0.32 * (1 - oe * 0.6);
         lock.position.y = 1.5 - 3.1 * oe + Math.sin(stt * 0.9) * 0.12;
         lock.scale.setScalar(1 + 0.3 * oe);
-        shackle.position.y = shackleY + 1.0 * ease(open / 0.45);
-        shackle.rotation.y = -1.05 * ease((open - 0.35) / 0.65);
+        shackle.position.y = shackleY + SHACKLE.lift * ease((open - 0.08) / 0.42);
+        shackle.rotation.y = SHACKLE.swing * ease((open - 0.42) / 0.58);
         lockMat.uniforms.uOpacity.value = sv;
         lockMat.uniforms.uDeep.value.copy(LOCK_COL.deep).lerp(LOCK_COL.deepG, oe);
         lockMat.uniforms.uRim.value.copy(LOCK_COL.rim).lerp(LOCK_COL.rimG, oe);
