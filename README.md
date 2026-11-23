@@ -28,6 +28,11 @@ Then open http://localhost:4173.
 
 The page loads three.js, the fonts and the icon set from public CDNs.
 
+## When you change the styles or scripts
+
+`index.html` loads them with a version number (`?v=5`). Raise that number in `index.html` whenever
+`css/styles.css` or a file in `js/` changes, so returning visitors never get a mix of old and new files.
+
 ## Before publishing
 
 - Replace the placeholder contact details (`sales@example.com` and the phone number) in
