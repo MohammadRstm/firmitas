@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hourline | The system for firms that design and build</title>
+  <meta name="description" content="Hourline runs an architecture and construction practice in one system: logged hours priced from real salaries, BOQ-priced sites with their own books, a profit floor that stops silent losses, and Proton, an AI financial wizard that asks before it acts.">
+  <meta name="theme-color" content="#0a0b0d">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0b0d'/%3E%3Cpath d='M12.5 28.5 30 10.5h9.6V56h8.7l9.7-9.7V29H49.3L21.7 56l-9.2-9.2Z' fill='none' stroke='%23fff' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <!-- Labels pinned to points of the 3D building -->
+  <div class="tags" aria-hidden="true">
+    <div class="tag" data-anchor="s_ground" data-group="site" data-side="right"><div class="tag__in"><i class="tag__lead"></i><span><b>Money, to the cent</b>&plusmn;0.00</span></div></div>
+    <div class="tag" data-anchor="s_frame" data-group="site" data-side="right"><div class="tag__in"><i class="tag__lead"></i><span><b>Hours into cost</b>+16.00</span></div></div>
+
+    <div class="tag" data-anchor="e_roof" data-group="exp" data-side="right"><div class="tag__in"><i class="tag__lead"></i><span><b>Proton</b>The AI financial wizard</span></div></div>
+    <div class="tag" data-anchor="e_l5" data-group="exp" data-side="left"><div class="tag__in"><i class="tag__lead"></i><span><b>Clients</b>Portal, files, website</span></div></div>
+    <div class="tag" data-anchor="e_l4" data-group="exp" data-side="right"><div class="tag__in"><i class="tag__lead"></i><span><b>Intelligence</b>Risks and what-if scenarios</span></div></div>
+    <div class="tag" data-anchor="e_l3" data-group="exp" data-side="left"><div class="tag__in"><i class="tag__lead"></i><span><b>Sites</b>BOQs, expenses, labour, logs</span></div></div>
+    <div class="tag" data-anchor="e_l2" data-group="exp" data-side="right"><div class="tag__in"><i class="tag__lead"></i><span><b>Pay</b>Salaries, overtime, advances</span></div></div>
+    <div class="tag" data-anchor="e_l1" data-group="exp" data-side="left"><div class="tag__in"><i class="tag__lead"></i><span><b>Studio</b>Hours, departments, variations</span></div></div>
+    <div class="tag" data-anchor="e_l0" data-group="exp" data-side="right"><div class="tag__in"><i class="tag__lead"></i><span><b>Control</b>67 permissions, audit trail</span></div></div>
+    <div class="tag" data-anchor="e_found" data-group="exp" data-side="left"><div class="tag__in"><i class="tag__lead"></i><span><b>Money</b>One calculator, invoices, budgets</span></div></div>
+  </div>
+
+  <header class="nav" id="top">
+    <div class="wrap nav__inner">
+      <a class="brand" href="#top" aria-label="Hourline home">
+        <svg class="brand__mark" viewBox="36 12 111 111" aria-hidden="true"><path d="M42 57 80 18h21v99h19l21-21V58h-19L62 117 42 97Z"/></svg>
+        <span class="brand__name">Hourline</span>
+      </a>
+      <nav class="nav__links" aria-label="Main">
+        <a href="#story">Walkthrough</a>
+        <a href="#website">Websites</a>
+        <a href="#proton">Proton AI</a>
+        <a href="#roles">Roles</a>
+        <a href="#trust">Security</a>
+      </nav>
+      <a class="btn btn--primary nav__cta" href="#contact">Book a demo</a>
+      <button class="nav__toggle" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
+        <i class="ph ph-list"></i>
+      </button>
+    </div>
+    <div class="nav__mobile" id="mobile-menu" hidden>
+      <a href="#story">Walkthrough</a>
+      <a href="#website">Websites</a>
+      <a href="#proton">Proton AI</a>
+      <a href="#roles">Roles</a>
+      <a href="#trust">Security</a>
+      <a class="btn btn--primary" href="#contact">Book a demo</a>
+    </div>
+  </header>
+
+  <!-- Level ruler: jumps between the floors of the walkthrough -->
+  <nav class="ruler" aria-label="Walkthrough levels">
+    <a href="#ch-foundation"><span>Foundation</span></a>
+    <a href="#ch-structure"><span>Structure</span></a>
+    <a href="#ch-floors"><span>Floor plates</span></a>
+    <a href="#ch-site"><span>Site works</span></a>
+    <a href="#ch-services"><span>Services</span></a>
+    <a href="#ch-envelope"><span>Envelope</span></a>
+    <a href="#modules"><span>All floors</span></a>
+  </nav>
+
+  <main id="main">
+
+    <!-- HERO: the logo and its ring live on the canvas -->
+    <section class="hero" id="hero">
+      <svg class="hero__fallback" viewBox="36 12 111 111" aria-hidden="true"><path d="M42 57 80 18h21v99h19l21-21V58h-19L62 117 42 97Z"/></svg>
+      <div class="wrap hero__inner">
+        <h1 class="hero__title">
+          <span class="hero__pre">You detail buildings to the millimetre.</span>
+          <span class="hero__main">Detail your firm to the <em>cent</em>.</span>
+        </h1>
+        <p class="lead">One system for hours, BOQs, site cash and clients, with an AI assistant that asks before it acts.</p>
+        <div class="hero__ctas">
+          <a class="btn btn--primary btn--lg" href="#contact">Book a demo</a>
+          <a class="btn btn--ghost btn--lg" href="#story">Walk the building <i class="ph ph-arrow-down"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE PROBLEM, with the site under construction behind it -->
+    <section class="site" id="site">
+      <div class="wrap">
+        <div class="site__copy reveal">
+          <h2>Most firms run on three things that never agree.</h2>
+          <ul class="struck">
+            <li><i class="ph ph-clock-countdown"></i><s>Timesheets nobody trusts</s></li>
+            <li><i class="ph ph-table"></i><s>Spreadsheets that price the site</s></li>
+            <li><i class="ph ph-chats-circle"></i><s>Chat groups that hold every decision</s></li>
+          </ul>
+          <p class="site__answer">Hourline replaces all three. Its figures match to the cent on every screen, every PDF and every answer.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- WALKTHROUGH: the building goes up as you scroll -->
+    <section class="story" id="story">
+
+      <article class="chapter" id="ch-foundation">
+        <div class="wrap"><div class="panel reveal">
+          <p class="lvl"><span class="lvl__mark"></span><span class="mono">-5.50</span>Foundation</p>
+          <h2>One set of numbers under everything.</h2>
+          <p>A single finance calculator feeds the project page, Financials, the company overview, every PDF and the AI. Nothing is worked out twice, so nothing can disagree.</p>
+          <div class="mini" aria-label="Sample invoice list">
+            <div class="row"><span class="mono">INV-2026-041</span><span>Paid on account</span><span class="pilltag pilltag--good">Applied</span></div>
+            <div class="row"><span class="mono">INV-2026-042</span><span>Overdue 12 days</span><span class="pilltag pilltag--warn">Reminder sent</span></div>
+            <div class="row"><span class="mono">INV-2026-043</span><span>Issues itself 1 Dec</span><span class="pilltag">Scheduled</span></div>
+          </div>
+          <ul class="facts">
+            <li>USD and LBP, each cost at its own day's rate</li>
+            <li>VAT on the work, never on supervision</li>
+            <li>Cost budgets kept in versions, each with a reason</li>
+          </ul>
+        </div></div>
+      </article>
+
+      <article class="chapter" id="ch-structure">
+        <div class="wrap"><div class="panel reveal">
+          <p class="lvl"><span class="lvl__mark"></span><span class="mono">&plusmn;0.00</span>Structure</p>
+          <h2>A floor your profit can't fall through.</h2>
+          <p>Any change that would take a project's profit to zero or below is refused and held for someone who sees the money: an expense, a price cut, even a pay rise.</p>
+          <div class="held" role="note">
+            <div class="held__head"><i class="ph ph-shield-warning"></i><strong>Change held by the profit floor</strong></div>
+            <p>An extra cost of <b class="mono">$6,400</b> would take profit to <b class="mono bad">-$310</b>.</p>
+            <div class="held__actions"><span class="btn btn--sm btn--ghost">Dismiss</span><span class="btn btn--sm btn--light">Force through once</span></div>
+          </div>
+          <ul class="facts">
+            <li>Ranked risks that name the rule that fired</li>
+            <li>A site's cash runway, counted in working days</li>
+            <li>Changes that raise profit always pass</li>
+          </ul>
+        </div></div>
+      </article>
+
+      <article class="chapter" id="ch-floors">
+        <div class="wrap"><div class="panel reveal">
+          <p class="lvl"><span class="lvl__mark"></span><span class="mono">+3.20</span>Floor plates</p>
+          <h2>Every logged hour carries its true cost.</h2>
+          <p>Staff log with a timer or a drag-and-drop day. Each minute is priced at that person's salary on that day, the paid break is shared across the day's projects, and overtime rules apply themselves.</p>
+          <div class="daytrack" aria-label="Sample logged day">
+            <div class="daytrack__lane">
+              <span style="--s:0;--e:28;--c:#2c6e63">Harbour Loft</span>
+              <span style="--s:28;--e:40" class="is-break">Break</span>
+              <span style="--s:40;--e:74;--c:#3d4f9a">Olive Grove Clinic</span>
+              <span style="--s:74;--e:100;--c:#2c6e63">Harbour Loft</span>
+            </div>
+            <div class="daytrack__axis mono"><span>9:00</span><span>13:00</span><span>17:00</span></div>
+          </div>
+          <ul class="facts">
+            <li>Preview a raise before you promise it, worst-hit project first</li>
+            <li>Out-of-scope hours frozen into a variation order</li>
+            <li>Nobody sees a colleague's hours or pay</li>
+          </ul>
+        </div></div>
+      </article>
+
+      <article class="chapter" id="ch-site">
+        <div class="wrap"><div class="panel reveal">
+          <p class="lvl"><span class="lvl__mark"></span><span class="mono">+6.40</span>Site works</p>
+          <h2>The price on the contract is the price in the system.</h2>
+          <p>The work price comes only from the agreed BOQ and variation orders. Site expenses, weekly ground labour and daily logs land on the site, and you know the cash in its account today.</p>
+          <div class="boq" aria-label="Sample BOQ totals">
+            <div class="row"><span>Agreed BOQ + 2 VOs</span><span class="mono">$186,400</span></div>
+            <div class="row"><span>Supervision 10%</span><span class="mono">$18,640</span></div>
+            <div class="row"><span>VAT 11% on the work</span><span class="mono">$20,504</span></div>
+            <div class="row row--total"><span>Client total</span><span class="mono">$225,544</span></div>
+          </div>
+          <ul class="facts">
+            <li>A phone app that records offline and never saves twice</li>
+            <li>Engineers draft BOQs without seeing margins</li>
+            <li>Pocket money moves surplus between sites</li>
+          </ul>
+        </div></div>
+      </article>
+
+      <article class="chapter" id="ch-services">
+        <div class="wrap"><div class="panel reveal">
+          <p class="lvl"><span class="lvl__mark"></span><span class="mono">+9.60</span>Services</p>
+          <h2>Communication runs through every floor.</h2>
+          <p>Team chats with read receipts and voice notes, announcements with read times, meetings with reminders, and notifications that respect quiet hours. Screens refresh live.</p>
+          <div class="bubble">
+            <p>Site visit moved to Thursday 9:00. Please confirm.</p>
+            <span class="ticks"><i class="ph ph-checks"></i> Seen by 6 of 8</span>
+          </div>
+          <ul class="facts">
+            <li>One search across projects, clients and people</li>
+            <li>Push to phone and browser</li>
+            <li>Money alerts only reach people who may see money</li>
+          </ul>
+        </div></div>
+      </article>
+
+      <article class="chapter" id="ch-envelope">
+        <div class="wrap"><div class="panel reveal">
+          <p class="lvl"><span class="lvl__mark"></span><span class="mono">+12.80</span>Envelope</p>
+          <h2>What the client sees is what you publish.</h2>
+          <p>Draft the client's view, preview it exactly, then publish in one step. Clients get a private portal with the presentation, 3D files and drawings, and a chat with your team.</p>
+          <div class="steps" aria-label="Draft, preview, publish">
+            <span>Draft</span><i class="ph ph-arrow-right"></i><span>Preview</span><i class="ph ph-arrow-right"></i><span class="is-on">Publish</span>
+          </div>
+          <div class="chips"><span>DWG</span><span>RVT</span><span>IFC</span><span>SKP</span><span>3DM</span><span>GLB</span><span>PDF</span></div>
+          <ul class="facts">
+            <li>Files up to 1 GB, checked by their content</li>
+            <li>Clients never see a half-edited version</li>
+            <li>Invite-only, with a sign-in separate from staff</li>
+          </ul>
+        </div></div>
+      </article>
+    </section>
+
+    <!-- EXPLODED AXONOMETRIC: how it fits together -->
+    <section class="exploded" id="modules">
+      <div class="exploded__pin">
+        <div class="wrap exploded__head reveal">
+          <h2>One building. Take the floors you need.</h2>
+          <p>Every module shares the same projects, people and permissions. Start with the studio, the sites, or both.</p>
+        </div>
+        <ul class="exploded__list" aria-label="Modules">
+          <li>Money</li><li>Control</li><li>Studio</li><li>Pay</li><li>Sites</li><li>Intelligence</li><li>Clients</li><li>Proton</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- WEBSITES: a real site built on Hourline -->
+    <section class="web solid" id="website">
+      <div class="wrap web__grid">
+        <div class="web__copy reveal">
+          <h2>We build the website. Your team runs it.</h2>
+          <p class="lead">Your public site reads straight from Hourline. Finish a project, add its photos, press publish. No agency in the loop.</p>
+          <ul class="web__facts">
+            <li><i class="ph ph-check-square-offset"></i><div><b>Nothing half-finished goes live.</b> Publishing waits until a project has its status, place, description and pictures.</div></li>
+            <li><i class="ph ph-image"></i><div><b>Photos handled for you.</b> Turned upright, shrunk and served as fast WebP in four sizes.</div></li>
+            <li><i class="ph ph-globe-hemisphere-east"></i><div><b>Projects on a globe.</b> Pick a country and town from built-in lists and the pin places itself.</div></li>
+            <li><i class="ph ph-chart-line-up"></i><div><b>Visitors at a glance.</b> Channels, countries, top pages and the last 30 minutes, with no individual tracking.</div></li>
+          </ul>
+          <a class="web__link" href="https://id-indetails.com" target="_blank" rel="noopener">Built and run on Hourline: id-indetails.com <i class="ph ph-arrow-up-right"></i></a>
+        </div>
+
+        <div class="web__stage" id="web-stage" role="img" aria-label="Pages of id-indetails.com, an architecture studio's website built on Hourline">
+          <div class="web__glow" aria-hidden="true"></div>
+          <div class="web__plane">
+            <figure class="shot shot--c"><div class="shot__bar"><i></i><i></i><i></i><span>id-indetails.com/studio</span></div><div class="shot__view"><img src="assets/showcase/studio.webp" width="1440" height="2191" alt="" loading="lazy" decoding="async" data-from="0" data-to="0.32"></div></figure>
+            <figure class="shot shot--b"><div class="shot__bar"><i></i><i></i><i></i><span>id-indetails.com/projects</span></div><div class="shot__view"><img src="assets/showcase/project.webp" width="1440" height="3095" alt="" loading="lazy" decoding="async" data-from="0" data-to="0.5"></div></figure>
+            <figure class="shot shot--a"><div class="shot__bar"><i></i><i></i><i></i><span>id-indetails.com</span></div><div class="shot__view"><img src="assets/showcase/home.webp" width="1440" height="2106" alt="" loading="lazy" decoding="async" data-from="0" data-to="0.1"></div></figure>
+            <figure class="shot shot--d"><div class="shot__bar"><i></i><i></i><i></i><span>id-indetails.com</span></div><div class="shot__view"><img src="assets/showcase/home.webp" width="1440" height="2106" alt="" loading="lazy" decoding="async" data-from="0.44" data-to="0.6"></div></figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROTON: the orb lives on the canvas and watches the pointer -->
+    <section class="proton" id="proton">
+      <div class="wrap">
+        <div class="proton__col">
+          <div class="proton__head" id="proton-head">
+            <p class="eyebrow eyebrow--proton">Proton, the AI assistant</p>
+            <h2>Meet Proton, your firm's financial wizard.</h2>
+            <p class="lead">It understands your company's finances better than you do, and it looks ahead for your firm's next opportunity.</p>
+            <div class="langs" aria-label="Languages Proton answers in">
+              <span>English</span><span lang="ar" dir="rtl">العربية</span><span lang="fr">Français</span>
+            </div>
+          </div>
+
+          <ul class="wizard reveal">
+            <li><i class="ph ph-brain"></i><div><b>It knows every project's numbers.</b> Projects, sites, invoices, budgets and cash, read live from the same calculator as every screen.</div></li>
+            <li><i class="ph ph-binoculars"></i><div><b>It looks ahead.</b> What a variation order, an extra cost or a late finish would do to your profit. How many working days of cash a site has left.</div></li>
+            <li><i class="ph ph-megaphone-simple"></i><div><b>It tells you first.</b> A briefing of the three things worth your attention, and what changed since last week.</div></li>
+          </ul>
+
+          <div class="chatwrap reveal" aria-label="Sample conversation with Proton">
+            <div class="chat" id="chat">
+              <div class="msg msg--user">What if Seaview Duplex finishes 6 weeks late?</div>
+              <div class="msg msg--ai">
+                <p>Six more weeks of crew at today's day rate:</p>
+                <div class="ans-table">
+                  <div><span>Profit today</span><span class="mono">$21,400</span></div>
+                  <div><span>Profit if late</span><span class="mono warn">$14,900</span></div>
+                  <div><span>Profit floor</span><span class="mono good">Still passes</span></div>
+                </div>
+                <p class="based">Based on the site's account figures and labour weeks. Nothing was saved.</p>
+              </div>
+              <div class="msg msg--user">Record a payment of $12,000 on it.</div>
+              <div class="msg msg--card">
+                <p class="card__kicker"><i class="ph ph-lock-key"></i> Needs your confirmation</p>
+                <p><b>Record payment</b> of <b class="mono">$12,000</b> on Seaview Duplex, on account.</p>
+                <p class="card__label">Type the amount to confirm</p>
+                <div class="card__input mono">12,000</div>
+                <div class="card__actions"><span class="btn btn--sm btn--ghost">Cancel</span><span class="btn btn--sm btn--proton">Confirm</span></div>
+              </div>
+            </div>
+            <p class="sample">Sample conversation</p>
+          </div>
+
+          <ul class="guards reveal" id="proton-end">
+            <li><i class="ph ph-hand-pointing"></i><div><b>It can only propose.</b> Every change is a card a person confirms. Risky ones ask for a typed phrase.</div></li>
+            <li><i class="ph ph-calculator"></i><div><b>Code does the math.</b> Figures and charts come from the system's tools, never from the model.</div></li>
+            <li><i class="ph ph-key"></i><div><b>Your permissions, not more.</b> It sees exactly what the person asking can see.</div></li>
+            <li><i class="ph ph-eye-slash"></i><div><b>Individual pay stays private.</b> Salaries, rates and bank details never reach it.</div></li>
+            <li><i class="ph ph-database"></i><div><b>Read-only while it thinks.</b> The database refuses any write during a tool run.</div></li>
+            <li><i class="ph ph-gauge"></i><div><b>Predictable cost.</b> A monthly budget, a per-person allowance and a usage dashboard.</div></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROLES: the building lights up what each person can open -->
+    <section class="roles" id="roles">
+      <div class="wrap">
+        <div class="roles__col reveal">
+          <h2>Each person sees exactly their part.</h2>
+          <p class="roles__hint">Pick a role. The building lights up what they can open. The rest answers "not found".</p>
+
+          <div class="tabs">
+            <div class="tabs__list" role="tablist" aria-label="Roles">
+              <button role="tab" aria-selected="true" aria-controls="role-owner" id="tab-owner" data-role="owner">Owner</button>
+              <button role="tab" aria-selected="false" aria-controls="role-finance" id="tab-finance" data-role="finance" tabindex="-1">Finance</button>
+              <button role="tab" aria-selected="false" aria-controls="role-lead" id="tab-lead" data-role="lead" tabindex="-1">Studio lead</button>
+              <button role="tab" aria-selected="false" aria-controls="role-site" id="tab-site" data-role="site" tabindex="-1">Site engineer</button>
+              <button role="tab" aria-selected="false" aria-controls="role-designer" id="tab-designer" data-role="designer" tabindex="-1">Designer</button>
+              <button role="tab" aria-selected="false" aria-controls="role-client" id="tab-client" data-role="client" tabindex="-1">Client</button>
+            </div>
+
+            <div class="tabs__panel" role="tabpanel" id="role-owner" aria-labelledby="tab-owner">
+              <h3>Know where the money is, every morning.</h3>
+              <ul>
+                <li>The company overview ends in net profit, after overhead, fixed salaries and paid leave.</li>
+                <li>Decide blocked changes yourself, and move surplus between sites with an audit trail.</li>
+                <li>Grant or revoke any single permission for any person.</li>
+              </ul>
+            </div>
+            <div class="tabs__panel" role="tabpanel" id="role-finance" aria-labelledby="tab-finance" hidden>
+              <h3>Get paid faster, without chasing by hand.</h3>
+              <ul>
+                <li>Split invoice plans that issue and email themselves, with overdue reminders on your schedule.</li>
+                <li>Aging buckets, paid-ahead balances and money not yet invoiced, per project and client.</li>
+                <li>Payments are never edited or deleted, only voided with a reason.</li>
+              </ul>
+            </div>
+            <div class="tabs__panel" role="tabpanel" id="role-lead" aria-labelledby="tab-lead" hidden>
+              <h3>See the work without asking around.</h3>
+              <ul>
+                <li>Activity level, a weekday-by-hour spread and quiet gaps for every project.</li>
+                <li>Department budgets with shares, and hours kept with the right department.</li>
+                <li>No money or pay by default. It is granted by hand.</li>
+              </ul>
+            </div>
+            <div class="tabs__panel" role="tabpanel" id="role-site" aria-labelledby="tab-site" hidden>
+              <h3>Record it on site, when it happens.</h3>
+              <ul>
+                <li>Site expenses and labour weeks from the phone, offline, never saved twice.</li>
+                <li>Daily logs in text or voice, editable until midnight and never deleted.</li>
+                <li>Field staff see the values they type, never site cost, profit or salaries.</li>
+              </ul>
+            </div>
+            <div class="tabs__panel" role="tabpanel" id="role-designer" aria-labelledby="tab-designer" hidden>
+              <h3>Log a day in seconds.</h3>
+              <ul>
+                <li>A timer that survives closing the phone, or drag blocks on the day's timeline.</li>
+                <li>Your hours, overtime, schedule, time off and advances in one place.</li>
+                <li>Your hours and pay are yours. Colleagues never see them.</li>
+              </ul>
+            </div>
+            <div class="tabs__panel" role="tabpanel" id="role-client" aria-labelledby="tab-client" hidden>
+              <h3>Follow the project without phoning the office.</h3>
+              <ul>
+                <li>A private portal with the presentation, 3D files and drawings the team published.</li>
+                <li>One project chat and comments on files, with mentions.</li>
+                <li>Their own sign-in. Clients can never reach the staff system.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRUST -->
+    <section class="trust solid" id="trust">
+      <div class="wrap trust__grid">
+        <div class="trust__copy reveal">
+          <h2>Built to be checked.</h2>
+          <p>Accounts exist only by invitation. A stolen session is detected, and every session for that person ends at once. Money, pay and permission changes are kept in an activity feed with their previous values.</p>
+        </div>
+        <dl class="stats reveal">
+          <div><dt>Permissions you can grant one by one</dt><dd class="mono" data-count="67">67</dd></div>
+          <div><dt>Minutes an access token lives</dt><dd class="mono" data-count="15">15</dd></div>
+          <div><dt>Critical findings in the security audit</dt><dd class="mono" data-count="0">0</dd></div>
+          <div><dt>Ways in: web, installable app, native phone</dt><dd class="mono" data-count="3">3</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="contact-stage" id="contact">
+      <div class="wrap reveal">
+        <h2>See it run on projects like yours.</h2>
+        <p class="lead">A walkthrough of the floors your practice needs: the studio, the sites, or both.</p>
+      </div>
+    </section>
+
+    <section class="contact-body solid" id="contact-body">
+      <div class="wrap contact__grid">
+        <!-- Placeholder contact details: replace before publishing. -->
+        <ul class="contact__details reveal">
+          <li><i class="ph ph-envelope-simple"></i><a href="mailto:sales@example.com">sales@example.com</a></li>
+          <li><i class="ph ph-phone"></i><span>+961 00 000 000</span></li>
+          <li><i class="ph ph-map-pin"></i><span>Beirut, Lebanon</span></li>
+        </ul>
+
+        <form class="form reveal" id="contact-form" novalidate>
+          <div class="field">
+            <label for="f-name">Your name</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required>
+            <p class="field__error" hidden>Please add your name.</p>
+          </div>
+          <div class="field">
+            <label for="f-company">Company</label>
+            <input id="f-company" name="company" type="text" autocomplete="organization" required>
+            <p class="field__error" hidden>Please add your company.</p>
+          </div>
+          <div class="field">
+            <label for="f-type">What does your firm do?</label>
+            <select id="f-type" name="type">
+              <option>Architecture and engineering</option>
+              <option>Design and build</option>
+              <option>Construction or fit-out</option>
+              <option>Interior design</option>
+              <option>Another service firm</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-msg">What would you like to see? <span class="muted">(optional)</span></label>
+            <textarea id="f-msg" name="message" rows="3"></textarea>
+          </div>
+          <button class="btn btn--primary btn--lg" type="submit">Book a demo</button>
+          <p class="form__note small muted">This opens your email app with the details filled in.</p>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <a class="brand" href="#top" aria-label="Back to top">
+        <svg class="brand__mark" viewBox="36 12 111 111" aria-hidden="true"><path d="M42 57 80 18h21v99h19l21-21V58h-19L62 117 42 97Z"/></svg>
+        <span class="brand__name">Hourline</span>
+      </a>
+      <p class="small muted">Built and run inside a working architecture and construction firm.</p>
+      <p class="small muted">&copy; <span id="year">2026</span> Hourline</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
