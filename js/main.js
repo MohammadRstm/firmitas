@@ -322,7 +322,10 @@
 
   var canvas = $("#scene");
   if (canvas && window.THREE && window.HourlineScene) {
-    scene = window.HourlineScene.create(canvas, { getState: getState, onFrame: onFrame, reduceMotion: reduce, line: "#e9edf3", accent: "#ff6a3c" });
+    scene = window.HourlineScene.create(canvas, { getState: getState, onFrame: onFrame, reduceMotion: reduce, line: "#e9edf3",
+      // lines, glows and the hover colour in the scene use the lighter tint of the primary navy
+      accent: (window.getComputedStyle(doc).getPropertyValue("--accent-hi") || "").trim() || "#5ea6ee"
+    });
   }
   if (scene) { scene.start(); window.__hourline = scene; } else { doc.classList.add("no-webgl"); }
   requestAnimationFrame(tick);

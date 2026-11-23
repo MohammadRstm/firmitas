@@ -234,7 +234,7 @@
   var RING_VERT = [
     "attribute float aR; attribute float aA; attribute float aY; attribute float aS; attribute float aSeed;",
     "uniform float uTime; uniform float uRadius; uniform float uBurst; uniform vec2 uMouse; uniform float uAspect; uniform float uPx;",
-    "varying float vF; varying float vSeed;",
+    "varying float vF; varying float vSeed; varying float vNear;",
     "void main() {",
     "  float ang = aA + uTime * 0.2 / (aR * sqrt(aR));",
     "  float rr = aR * uRadius * (1.0 + uBurst * (0.5 + aSeed * 1.5));",
@@ -250,18 +250,29 @@
     "  dir.x /= uAspect;",
     "  clip.xy += dir * f * 0.17 * clip.w;",
     "  vF = f; vSeed = aSeed;",
-    "  gl_PointSize = max(1.0, aS * uPx / -mv.z * (1.0 + f * 1.8));",
+    "  // how near this point is, from -1 (far side of the ring) to +1 (near side)",
+    "  float cz = (modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0)).z;",
+    "  vNear = clamp((mv.z - cz) / (uRadius * 2.2 * length(modelViewMatrix[0].xyz)), -1.0, 1.0);",
+    "  gl_PointSize = max(1.0, aS * uPx / -mv.z * (1.0 + f * 1.8) * (1.0 + max(vNear, 0.0) * 0.38 + min(vNear, 0.0) * 0.25));",
     "  gl_Position = clip;",
     "}"
   ].join("\n");
   var RING_FRAG = [
-    "uniform vec3 uColor; uniform vec3 uAccent; uniform float uOpacity; uniform float uTime;",
-    "varying float vF; varying float vSeed;",
+    "uniform vec3 uColor; uniform vec3 uAccent; uniform vec3 uBg; uniform float uOpacity; uniform float uTime;",
+    "varying float vF; varying float vSeed; varying float vNear;",
     "void main() {",
     "  float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard;",
-    "  float a = smoothstep(0.5, 0.12, d);",
     "  float tw = 0.62 + 0.38 * sin(uTime * (0.8 + vSeed * 2.0) + vSeed * 40.0);",
-    "  gl_FragColor = vec4(mix(uColor, uAccent, vF), a * uOpacity * tw * (0.6 + vF * 0.4));",
+    "  float front = smoothstep(0.05, 0.35, vNear);",
+    "  vec3 col = mix(uColor, uAccent, max(vF, front * 0.2));",
+    "  float soft = smoothstep(0.5, 0.12, d) * (0.7 + 0.45 * vNear) * tw * (0.6 + vF * 0.4);",
+    "  // Points on the near side are solid with a thin dark rim. White over white cannot be seen,",
+    "  // so the rim is what shows a point passing in front of the logo's lines.",
+    "  float core = smoothstep(0.455, 0.38, d);",
+    "  float disc = smoothstep(0.5, 0.47, d);",
+    "  vec3 c = mix(col, mix(uBg, col * (0.72 + 0.2 * tw + 0.3 * (1.0 - d * 2.0)), core), front);",
+    "  float a = mix(soft, max(soft, disc * 0.92), front);",
+    "  gl_FragColor = vec4(c, a * uOpacity);",
     "}"
   ].join("\n");
 
@@ -314,7 +325,7 @@
 
     var U = {
       line: new THREE.Color(opts.line || "#e9edf3"),
-      accent: new THREE.Color(opts.accent || "#ff6a3c"),
+      accent: new THREE.Color(opts.accent || "#5ea6ee"),
       explode: { value: 0 },
       lights: { value: 0 }
     };
@@ -770,8 +781,19 @@
         T.tube(P(a), P(outline[(i + 1) % outline.length]), rad, 10);
         T.ball(P(a), rad);
       });
-      logoMat = new THREE.MeshBasicMaterial({ color: 0xf4f6fa, transparent: true });
-      logoSpin.add(new THREE.Mesh(T.geometry(), logoMat));
+      // Draw order gives the ring its depth: the logo first, then the ring points.
+      logoMat = new THREE.MeshBasicMaterial({ color: 0xf4f6fa, transparent: true, depthTest: false });
+      var logoMesh = new THREE.Mesh(T.geometry(), logoMat);
+      logoMesh.renderOrder = 20;
+      logoSpin.add(logoMesh);
+      // An unseen, slightly thicker copy of the outline that only writes depth. Ring points that pass
+      // behind the logo are cut around its lines; points that pass in front are drawn over it.
+      var halo = new TubeSet();
+      outline.forEach(function (a, i) {
+        halo.tube(P(a), P(outline[(i + 1) % outline.length]), rad * 3.2, 8);
+        halo.ball(P(a), rad * 3.2);
+      });
+      logoSpin.add(new THREE.Mesh(halo.geometry(), new THREE.MeshBasicMaterial({ colorWrite: false })));
 
       var r = mulberry(77), N = 3000, aR = new Float32Array(N), aA = new Float32Array(N), aY = new Float32Array(N),
         aS = new Float32Array(N), aSeed = new Float32Array(N), i;
@@ -793,12 +815,14 @@
       ringMat = new THREE.ShaderMaterial({
         uniforms: {
           uTime: { value: 0 }, uRadius: { value: 4.7 }, uBurst: { value: 0 }, uMouse: { value: new THREE.Vector2(9, 9) },
-          uAspect: { value: 1 }, uPx: { value: 1 }, uOpacity: { value: 0 }, uColor: { value: U.line }, uAccent: { value: U.accent }
+          uAspect: { value: 1 }, uPx: { value: 1 }, uOpacity: { value: 0 }, uColor: { value: U.line }, uAccent: { value: U.accent },
+          uBg: { value: new THREE.Color(opts.bg || "#0a0b0d") }
         },
         vertexShader: RING_VERT, fragmentShader: RING_FRAG, transparent: true, depthWrite: false
       });
       var pts = new THREE.Points(g, ringMat);
       pts.frustumCulled = false;
+      pts.renderOrder = 21;
       ringTilt.rotation.set(0.3, 0, 0.17);
       ringTilt.add(pts);
       logoGroup.add(ringTilt);

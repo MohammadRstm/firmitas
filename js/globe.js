@@ -131,10 +131,10 @@
         p = turn(places[i], cs, sn, R);
         if (p[2] <= 0.04) continue;
         var x = c + p[0], y = c - p[1], r0 = size / (i === 0 ? 70 : 115), pulse = (t * 0.6 + i * 0.21) % 1;
-        ctx.strokeStyle = (i === 0 ? "rgba(255,106,60," : "rgba(92,150,255,") + ((1 - pulse) * 0.7 * p[2]).toFixed(2) + ")";
+        ctx.strokeStyle = (i === 0 ? "rgba(255,255,255," : "rgba(92,150,255,") + ((1 - pulse) * 0.7 * p[2]).toFixed(2) + ")";
         ctx.lineWidth = Math.max(1, size / 500);
         ctx.beginPath(); ctx.arc(x, y, r0 * (1 + pulse * 3.2), 0, 6.2832); ctx.stroke();
-        ctx.fillStyle = i === 0 ? "#ff6a3c" : "#6fa0ff";
+        ctx.fillStyle = i === 0 ? "#ffffff" : "#6fa0ff";
         ctx.beginPath(); ctx.arc(x, y, r0, 0, 6.2832); ctx.fill();
       }
     }
