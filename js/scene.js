@@ -930,8 +930,8 @@
     window.addEventListener("pointerdown", onPointer, { passive: true });
 
     function resize() {
-      W = canvas.clientWidth || window.innerWidth;
-      H = canvas.clientHeight || window.innerHeight;
+      W = canvas.clientWidth || window.innerWidth || 1280;
+      H = canvas.clientHeight || window.innerHeight || 800;
       aspect = W / H;
       var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
       renderer.setPixelRatio(dpr);
@@ -976,7 +976,9 @@
       var tar = opts.getState();
       var k = reduce || !inited ? 1 : 1 - Math.exp(-dt * 4.6);
       for (key in tar) {
-        if (cur[key] === undefined || k === 1) cur[key] = tar[key];
+        // never let one bad number (a zero-size window, say) poison the scene for good
+        if (!isFinite(tar[key])) continue;
+        if (cur[key] === undefined || k === 1 || !isFinite(cur[key])) cur[key] = tar[key];
         else cur[key] += (tar[key] - cur[key]) * k;
       }
       inited = true;
@@ -1108,7 +1110,7 @@
       resize: resize,
       frame: function (ms) { resize(); step(ms === undefined ? performance.now() : ms); },
       project: project,
-      setLogoBox: function (cy, h) { logoBox.cy = cy; logoBox.h = h; },
+      setLogoBox: function (cy, h) { if (isFinite(cy) && isFinite(h)) { logoBox.cy = cy; logoBox.h = h; } },
       // where the orb should look, in screen units from -1 to 1; call with no arguments to look ahead
       setGaze: function (x, y) { gaze.on = x !== undefined && x !== null; if (gaze.on) { gaze.x = x; gaze.y = y; } },
       setFocus: function (dims, level) {

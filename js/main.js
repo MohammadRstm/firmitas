@@ -89,16 +89,17 @@
   var heroEl = $("#hero"), heroInner = $(".hero__inner"), heroBox = { top: 68, bottom: 400 };
 
   function adjust(s) {
-    var o = {}, k, asp = window.innerWidth / window.innerHeight;
+    // a page that loads in a hidden tab can report a window of zero size
+    var o = {}, k, asp = (window.innerWidth || 1280) / (window.innerHeight || 800);
     for (k = 0; k < KEYS.length; k++) o[KEYS[k]] = s[KEYS[k]];
     o.dist = s.dist * Math.min(2.3, Math.max(1, 1.25 / asp));
-    if (s.fitH) o.dist *= clamp(s.fitH / window.innerHeight, 1, 1.5);
+    if (s.fitH) o.dist *= clamp(s.fitH / (window.innerHeight || 800), 1, 1.5);
     if (narrow) { o.ox = 0; o.oy = s.moy !== undefined ? s.moy : -0.2; }
     return o;
   }
   function measure() {
-    vh = window.innerHeight;
-    narrow = window.innerWidth < 900;
+    vh = window.innerHeight || 800;
+    narrow = (window.innerWidth || 1280) < 900;
     var y = window.scrollY;
     stops.forEach(function (s) {
       var r = s.el.getBoundingClientRect();
