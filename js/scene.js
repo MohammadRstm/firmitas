@@ -629,33 +629,20 @@
 
     /* ---------- logo with its ring (attached to the camera) ---------- */
 
-    var logoGroup = new THREE.Group(), logoSpin = new THREE.Group(), logoMat, logoFaceMat, ringMat, ringTilt = new THREE.Group();
+    var logoGroup = new THREE.Group(), logoSpin = new THREE.Group(), logoMat, ringMat, ringTilt = new THREE.Group();
     camera.add(logoGroup);
     logoGroup.add(logoSpin);
     (function () {
-      var s = 6 / 99, d = 0.6, rad = 0.105, T = new TubeSet();
-      function P(pt, z) { return new THREE.Vector3((pt[0] - 91.5) * s, (67.5 - pt[1]) * s, z); }
-      var polys = [
-        [[42, 57], [80, 18], [101, 18], [101, 79], [62, 117], [42, 97]],
-        [[101, 79], [122, 58], [141, 58], [141, 96], [120, 117], [101, 117]]
-      ];
-      logoFaceMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.05, side: THREE.DoubleSide, depthWrite: false });
-      polys.forEach(function (poly) {
-        var i, n = poly.length, shape = new THREE.Shape();
-        for (i = 0; i < n; i++) {
-          var a = poly[i], b = poly[(i + 1) % n];
-          [d, -d].forEach(function (z) { T.tube(P(a, z), P(b, z), rad, 10); T.ball(P(a, z), rad * 1.04); });
-          T.tube(P(a, d), P(a, -d), rad, 10);
-          var v = P(a, 0);
-          if (i === 0) shape.moveTo(v.x, v.y); else shape.lineTo(v.x, v.y);
-        }
-        [d, -d].forEach(function (z) {
-          var face = new THREE.Mesh(new THREE.ShapeGeometry(shape), logoFaceMat);
-          face.position.z = z;
-          logoSpin.add(face);
-        });
+      // The logo is a flat line drawing: one closed outline with no depth, no faces and no shading.
+      // Thin round strokes keep the line the same weight at every angle of the opening spin.
+      var s = 6 / 99, rad = 0.05, T = new TubeSet();
+      function P(pt) { return new THREE.Vector3((pt[0] - 91.5) * s, (67.5 - pt[1]) * s, 0); }
+      var outline = [[42, 57], [80, 18], [101, 18], [101, 117], [120, 117], [141, 96], [141, 58], [122, 58], [62, 117], [42, 97]];
+      outline.forEach(function (a, i) {
+        T.tube(P(a), P(outline[(i + 1) % outline.length]), rad, 10);
+        T.ball(P(a), rad);
       });
-      logoMat = new THREE.MeshStandardMaterial({ color: 0xf4f6fa, roughness: 0.3, metalness: 0.15, emissive: 0x30333a, transparent: true });
+      logoMat = new THREE.MeshBasicMaterial({ color: 0xf4f6fa, transparent: true });
       logoSpin.add(new THREE.Mesh(T.geometry(), logoMat));
 
       var r = mulberry(77), N = 3000, aR = new Float32Array(N), aA = new Float32Array(N), aY = new Float32Array(N),
@@ -772,13 +759,11 @@
 
     var ambient = new THREE.AmbientLight(0xb9c0d6, 0.5);
     var keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    var rimLight = new THREE.PointLight(U.accent.getHex(), 0, 0);
     var lightM = new THREE.PointLight(0xff3fd0, 0, 0), lightC = new THREE.PointLight(0x38d6ff, 0, 0);
     keyLight.position.set(6, 10, 14);
-    rimLight.position.set(-9, -5, -22);
     lightM.position.set(-11, 6, -22);
     lightC.position.set(13, -6, -24);
-    camera.add(ambient); camera.add(keyLight); camera.add(rimLight); camera.add(lightM); camera.add(lightC);
+    camera.add(ambient); camera.add(keyLight); camera.add(lightM); camera.add(lightC);
     camera.add(keyLight.target);
     keyLight.target.position.set(0, 0, -ATTACH_D);
 
@@ -921,19 +906,17 @@
       /* logo and ring */
       var lv = cur.logo, lOn = lv > 0.004, it = t - t0;
       logoGroup.visible = lOn;
-      rimLight.intensity = 1.3 * lv;
       if (lOn) {
         var settle = reduce ? 0 : 1 - Math.exp(-it * 0.9);
         var spin = reduce ? 0 : SPIN_TOTAL * Math.exp(-it * 1.45);
-        logoSpin.rotation.y = -spin + Math.sin(t * 0.55) * 0.36 * settle + mouse.x * 0.42;
-        logoSpin.rotation.x = Math.sin(t * 0.41) * 0.07 * settle - mouse.y * 0.2;
+        logoSpin.rotation.y = -spin + Math.sin(t * 0.55) * 0.16 * settle + mouse.x * 0.28;
+        logoSpin.rotation.x = Math.sin(t * 0.41) * 0.04 * settle - mouse.y * 0.14;
         var pop = reduce ? 1 : 1 - 0.4 * Math.exp(-it * 2.4);
         // Fit the logo and its ring into the free space above the hero text.
         var fit = clamp(Math.min((logoBox.h * attach.visH * 0.9) / 7.4, (attach.visW * (attach.narrow ? 1.5 : 0.94)) / 23.5), 0.3, 1.3);
         logoGroup.position.set(0, (0.5 - logoBox.cy) * attach.visH, -ATTACH_D);
         logoGroup.scale.setScalar(fit * (0.5 + 0.5 * ease(lv)) * pop);
         logoMat.opacity = ease(lv);
-        logoFaceMat.opacity = 0.05 * lv;
         ringTilt.rotation.y = reduce ? 0 : t * 0.04;
         var ru = ringMat.uniforms;
         ru.uTime.value = reduce ? 4 : t;
