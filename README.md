@@ -1,6 +1,6 @@
-# Hourline: the sales site
+# Firmitas: the sales site
 
-A static landing page that presents Hourline, the system for firms that design and build.
+A static landing page that presents Firmitas, the system for firms that design and build.
 Plain HTML, CSS and JavaScript. There is no build step and no backend.
 
 ## Run it locally
@@ -20,10 +20,12 @@ Then open http://localhost:4173.
 | `index.html` | The page: hero, walkthrough, modules, websites, Proton, roles, security, contact |
 | `css/styles.css` | All styles. One dark theme |
 | `js/scene.js` | The 3D scene (three.js): the logo and its ring, the building, the Proton orb |
-| `js/globe.js` | The spinning dotted globe drawn over the home page in the websites section |
+| `js/world.js` | Country outlines for that globe (Natural Earth 1:110m, public domain, via world-atlas) |
+| `js/globe.js` | The spinning globe drawn over the home page in the websites section |
 | `js/main.js` | What the scene shows at each scroll position, plus tabs, the chat and the form |
-| `assets/showcase/` | Page images for the websites section. `home.webp` is a real capture; the others are samples |
-| `tools/mock-sites.html` | The invented portfolio pages the sample images are captured from |
+| `assets/showcase/` | Page images for the websites section, captured from the sample pages |
+| `tools/mock-sites.html` | The invented portfolio pages the images are captured from |
+| `tools/photos/` | Free photos used in those pages, with credits in `CREDITS.md` |
 | `tools/capture.mjs` | Re-captures the sample pages: `node tools/capture.mjs` (needs Node 22+ and Chrome) |
 
 The page loads three.js, the fonts and the icon set from public CDNs.

@@ -9,7 +9,7 @@ import { pathToFileURL } from "node:url";
 const CHROME = process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const OUT = resolve("assets/showcase");
 const SOURCE = pathToFileURL(resolve("tools/mock-sites.html")).href;
-const PAGES = ["projects", "project", "studio"];
+const PAGES = ["home", "projects", "project", "studio"];
 const PORT = 9333;
 
 mkdirSync(OUT, { recursive: true });

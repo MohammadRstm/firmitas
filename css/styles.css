@@ -1,4 +1,4 @@
-/* Hourline sales site. Plain CSS. One dark theme: white line work on near-black,
+/* Firmitas sales site. Plain CSS. One dark theme: white line work on near-black,
    one warm accent, and Proton's own magenta and cyan inside its section. */
 
 :root {
@@ -198,7 +198,11 @@ main, .footer { position: relative; z-index: 1; }
 .struck { display: grid; gap: 14px; }
 .struck li { display: flex; align-items: center; gap: 14px; color: var(--ink-3); font-size: 1.08rem; }
 .struck i { font-size: 24px; }
-.struck s { text-decoration-color: var(--accent-hi); text-decoration-thickness: 2px; }
+.struck li { transition: color .45s var(--ease); }
+.struck s { text-decoration-color: var(--accent-hi); text-decoration-thickness: 2px; transition: text-decoration-color .45s var(--ease); }
+/* pointing at a line lifts its strike so the words can be read */
+.struck li:hover { color: var(--ink); }
+.struck li:hover s { text-decoration-color: transparent; }
 .site__answer { font-size: 1.15rem; font-weight: 550; padding-left: 18px; border-left: 2px solid var(--accent-hi); }
 
 /* Walkthrough chapters */
@@ -302,7 +306,7 @@ main, .footer { position: relative; z-index: 1; }
 .shot__page { position: relative; will-change: transform; }
 .shot__page img { width: 100%; height: auto; }
 /* a live globe drawn over the still one in the home page capture */
-.shot__globe { position: absolute; left: 2.64%; top: 7.22%; width: 44.44%; aspect-ratio: 1; }
+.shot__globe { position: absolute; left: 3.75%; top: 8.08%; width: 45.83%; aspect-ratio: 1; }
 .shot--a { width: 70%; left: 30%; top: 12%; transform: translateZ(150px); }
 .shot--b { width: 56%; left: -8%; top: 40%; transform: translateZ(40px); }
 .shot--c { width: 50%; left: 2%; top: -10%; transform: translateZ(-120px); opacity: .82; }
@@ -320,6 +324,7 @@ main, .footer { position: relative; z-index: 1; }
   width: min(500px, 100%); display: grid; gap: 14px; padding: 28px; border-radius: var(--radius); border: 1px solid rgba(150, 120, 255, .24);
   background: color-mix(in srgb, #0d0a1c 74%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 30px 80px -40px rgba(120, 70, 255, .5);
+  will-change: opacity, transform;
 }
 .prow__card--plain { top: 30vh; box-shadow: none; }
 .prow__card--plain { width: min(560px, 100%); padding: 0; border: 0; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; gap: 0; }
@@ -379,50 +384,39 @@ main, .footer { position: relative; z-index: 1; }
 .tabs__panel li { padding-left: 26px; position: relative; color: var(--ink-2); }
 .tabs__panel li::before { content: ""; position: absolute; left: 0; top: .72em; width: 14px; height: 2px; background: var(--accent-hi); }
 
-/* Security */
-.security { padding: 104px 0; }
-.sec-head { max-width: 640px; margin-bottom: 40px; }
-.sec-head h2 { margin-bottom: 12px; }
-.sec-head p { color: var(--ink-2); font-size: 1.08rem; }
-.sec-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; }
-.sec { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px; display: grid; gap: 20px; align-content: start; }
-.sec--authz { grid-row: span 2; }
-.sec header { display: flex; gap: 16px; align-items: flex-start; }
-.sec header > i { font-size: 30px; color: var(--accent-hi); flex: none; }
-.sec__kicker { font-family: var(--mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .14em; color: var(--accent-hi); margin-bottom: 6px; }
-.sec h3 { font-size: 1.3rem; line-height: 1.2; }
-.sec__list { display: grid; gap: 9px; font-size: .92rem; color: var(--ink-2); }
-.sec__list li { padding-left: 22px; position: relative; }
-.sec__list li::before { content: ""; position: absolute; left: 0; top: .68em; width: 12px; height: 2px; background: var(--accent-hi); }
-.sec__list b { color: var(--ink); font-weight: 600; }
-.matrix { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--bg); font-size: .88rem; }
-.matrix__row { display: grid; grid-template-columns: minmax(0, 1.9fr) repeat(3, minmax(0, .72fr)); align-items: center; padding: 10px 14px; border-top: 1px solid var(--line); }
-.matrix__row--head { border-top: 0; font-family: var(--mono); font-size: .66rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); background: var(--surface-2); }
-.matrix__row > :not(:first-child) { justify-self: center; text-align: center; }
-.matrix__row code { display: block; font-family: var(--mono); font-size: .7rem; color: var(--ink-3); }
-.matrix i { font-size: 20px; }
-.matrix .yes { color: var(--good); }
-.matrix .no { color: #4a4f5a; }
-.matrix .grant { color: var(--accent-hi); }
-.matrix__note { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--line); font-size: .78rem; color: var(--ink-3); }
-.sessions { display: grid; gap: 8px; }
-.sessions__row { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg); font-size: .88rem; }
-.sessions__row i { font-size: 20px; color: var(--ink-2); }
-.sessions__row em { font-style: normal; font-size: .78rem; color: var(--ink-3); padding: 0; }
-.sessions .btn { justify-self: end; margin-top: 4px; }
-.aiwall { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.aiwall > div { display: grid; gap: 6px; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--bg); align-content: start; }
-.aiwall p { font-family: var(--mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--good); margin-bottom: 4px; }
-.aiwall span { font-size: .86rem; color: var(--ink-2); }
-.aiwall .aiwall__no { border-color: color-mix(in srgb, var(--bad) 40%, var(--line)); }
-.aiwall__no p { color: var(--bad); }
-.aiwall__no span { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--bad) 70%, transparent); }
-.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin: 18px 0 0; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-.stats div { background: var(--surface); padding: 26px 24px; display: flex; flex-direction: column-reverse; gap: 8px; position: relative; }
-.stats dt { font-size: .86rem; color: var(--ink-3); }
-.stats dd { margin: 0; font-size: clamp(2rem, 3.6vw, 2.8rem); line-height: 1; letter-spacing: -0.04em; }
-.stats div::after { content: ""; position: absolute; left: 24px; right: 24px; top: 14px; height: 1px; background: var(--accent-hi); transform: scaleX(0); transform-origin: left; transition: transform 1.2s var(--ease); }
-.stats.is-in div::after { transform: scaleX(1); }
+/* Security: a glass lock with four cards turning around it. The canvas draws the lock, the cards
+   and their dots; the list holds the real text for screen readers. */
+.security { height: 430vh; }
+.security__pin {
+  position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; justify-content: space-between;
+  padding: calc(var(--nav-h) + 30px) 0 28px; pointer-events: none;
+}
+.security__head { text-align: center; }
+.security__head h2 { margin-bottom: 10px; }
+.security__head p { color: var(--ink-2); }
+.security__cards { position: absolute; width: 1px; height: 1px; margin: 0; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; list-style: none; }
+.security__steps { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.security__steps li {
+  font-family: var(--mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; padding: 6px 14px; border-radius: 999px;
+  border: 1px solid var(--line); color: var(--ink-3); background: rgba(10, 11, 13, .6);
+  transition: color .3s var(--ease), background-color .3s var(--ease), border-color .3s var(--ease);
+}
+.security__steps li.is-on { color: #fff; background: var(--accent); border-color: var(--accent-hi); }
+.sec__kicker { font-family: var(--mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .14em; color: var(--accent-hi); margin-bottom: 8px; }
+
+/* Phones, and browsers without WebGL, get the four cards as a plain grid. */
+.sec-static .security { height: auto; padding: 84px 0; }
+.sec-static .security__pin { position: static; height: auto; display: block; padding: 0; pointer-events: auto; }
+.sec-static .security__steps { display: none; }
+.sec-static .security__cards {
+  position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 1240px; margin: 36px auto 0; padding: 0 28px;
+}
+.security__cards > li { padding: 24px; border-radius: var(--radius); border: 1px solid var(--accent-edge); background: linear-gradient(180deg, #0a1b32, #060d18); }
+.security__cards h3 { font-size: 1.25rem; margin-bottom: 14px; }
+.security__cards ul { display: grid; gap: 8px; color: var(--ink-2); font-size: .94rem; }
+.security__cards ul li { padding-left: 22px; position: relative; }
+.security__cards ul li::before { content: ""; position: absolute; left: 0; top: .7em; width: 12px; height: 2px; background: var(--accent-hi); }
 
 /* Contact */
 .contact-stage { min-height: 86vh; display: flex; align-items: flex-end; text-align: center; padding: 0 0 56px; }
@@ -493,14 +487,8 @@ main, .footer { position: relative; z-index: 1; }
   .prow__card--plain { padding: 0; background: none; }
   .roles { align-items: flex-end; padding: 50vh 0 60px; }
   .roles__col { padding: 20px; border-radius: var(--radius); background: color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-  .security { padding: 72px 0; }
-  .sec-grid { grid-template-columns: 1fr; }
-  .sec { padding: 22px; }
-  .matrix__row { grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, .62fr)); padding: 10px; }
-  .matrix__row--head { font-size: .52rem; letter-spacing: 0; }
-  .stats { grid-template-columns: 1fr 1fr; }
+  .sec-static .security { padding: 72px 0; }
+  .sec-static .security__cards { grid-template-columns: 1fr; padding: 0 18px; }
   .contact__grid { grid-template-columns: 1fr; gap: 36px; }
-  .stats div { padding: 22px 16px; }
-  .stats div::after { left: 16px; right: 16px; }
   .footer__inner .small:last-child { margin-left: 0; }
 }

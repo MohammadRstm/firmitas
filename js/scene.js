@@ -1,4 +1,4 @@
-/* Hourline 3D scene. One WebGL canvas behind the page: the logo with its ring,
+/* Firmitas 3D scene. One WebGL canvas behind the page: the logo with its ring,
    a building that is built by scrolling, and the Proton orb.
    Classic script (works from file://). Needs window.THREE (r158). */
 (function () {
@@ -302,6 +302,49 @@
   var EYE_FRAG = [
     "uniform float uTime; uniform float uOpacity; uniform float uBoost; varying vec3 vCol; varying float vPh;",
     "void main() { float b = 0.78 + 0.3 * sin(uTime * 2.2 + vPh); gl_FragColor = vec4(vCol * b * (1.0 + uBoost), uOpacity); }"
+  ].join("\n");
+
+  // The lock: clear glass, brighter at grazing angles.
+  var GLASS_FRAG = [
+    "uniform float uOpacity; varying vec3 vN; varying vec3 vV;",
+    "void main() {",
+    "  vec3 n = normalize(vN);",
+    "  float fr = pow(1.0 - abs(dot(n, vV)), 2.0);",
+    "  vec3 col = mix(vec3(0.03, 0.12, 0.26), vec3(0.62, 0.82, 1.0), fr);",
+    "  vec3 h = normalize(normalize(vec3(-0.45, 0.75, 0.55)) + vV);",
+    "  float sp = pow(abs(dot(n, h)), 60.0);",
+    "  gl_FragColor = vec4(col + vec3(0.9, 0.95, 1.0) * sp * 0.8, clamp(0.08 + fr * 0.62 + sp * 0.7, 0.0, 1.0) * uOpacity);",
+    "}"
+  ].join("\n");
+
+  // A card as dots. uB = 0: the dots sit where the card's pixels are. uB = 1: they ride the ring around the lock.
+  var DOTS_VERT = [
+    "attribute vec3 aSeed; attribute float aBright;",
+    "uniform float uB; uniform float uTime; uniform float uR; uniform float uPx;",
+    "varying float vBright; varying float vE;",
+    "void main() {",
+    "  float bb = clamp(uB * 1.45 - aSeed.x * 0.45, 0.0, 1.0);",
+    "  float e = bb * bb * (3.0 - 2.0 * bb);",
+    "  vec3 home = vec3(position.xy, uR);",
+    "  float ang = (aSeed.y - 0.5) * 1.75 + uTime * 0.12 * (aSeed.z - 0.3);",
+    "  float rr = uR + (aSeed.z - 0.5) * 3.6;",
+    "  vec3 ring = vec3(sin(ang) * rr, (aSeed.x - 0.5) * 3.0 + 0.6, cos(ang) * rr);",
+    "  vec3 p = mix(home, ring, e);",
+    "  p.y += sin(e * 3.14159) * (aSeed.y - 0.5) * 2.4;",
+    "  vec4 mv = modelViewMatrix * vec4(p, 1.0);",
+    "  vBright = aBright; vE = e;",
+    "  gl_PointSize = max(1.0, (0.055 + aSeed.z * 0.06 + e * 0.04) * uPx / -mv.z);",
+    "  gl_Position = projectionMatrix * mv;",
+    "}"
+  ].join("\n");
+  var DOTS_FRAG = [
+    "uniform vec3 uColor; uniform vec3 uAccent; uniform float uOpacity;",
+    "varying float vBright; varying float vE;",
+    "void main() {",
+    "  float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard;",
+    "  vec3 c = mix(uAccent, uColor, vBright * (1.0 - vE * 0.5));",
+    "  gl_FragColor = vec4(c, smoothstep(0.5, 0.15, d) * uOpacity * 0.85 * mix(vBright, 0.5 + 0.4 * vBright, vE));",
+    "}"
   ].join("\n");
 
   /* ---------- scene ---------- */
@@ -909,6 +952,142 @@
       }
     })();
 
+    /* ---------- security: a glass lock with four cards turning around it (attached to the camera) ---------- */
+
+    var secGroup = new THREE.Group(), secSpin = new THREE.Group(), lock = new THREE.Group(), secCards = [];
+    var SEC = { R: 8.5, w: 9.6, h: 5.4, cardY: -2.0, N: 1700 }, lockMat, keyMat, lockEdge, lockGlow;
+    camera.add(secGroup);
+    secGroup.add(lock);
+    secGroup.add(secSpin);
+    secGroup.visible = false;
+    (function () {
+      lockMat = new THREE.ShaderMaterial({
+        uniforms: { uOpacity: { value: 1 } }, vertexShader: CORE_VERT, fragmentShader: GLASS_FRAG,
+        transparent: true, depthWrite: false, depthTest: false, side: THREE.DoubleSide
+      });
+      var w = 3.9, h = 3.1, r = 0.55, shape = new THREE.Shape();
+      shape.moveTo(-w / 2 + r, -h / 2);
+      shape.lineTo(w / 2 - r, -h / 2); shape.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+      shape.lineTo(w / 2, h / 2 - r); shape.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
+      shape.lineTo(-w / 2 + r, h / 2); shape.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+      shape.lineTo(-w / 2, -h / 2 + r); shape.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+      var bodyGeo = new THREE.ExtrudeGeometry(shape, { depth: 1.3, bevelEnabled: true, bevelSize: 0.14, bevelThickness: 0.14, bevelSegments: 3, curveSegments: 8 });
+      bodyGeo.translate(0, 0, -0.65);
+      var body = new THREE.Mesh(bodyGeo, lockMat);
+      body.renderOrder = 31;
+      lock.add(body);
+      lockEdge = new THREE.LineBasicMaterial({ color: U.accent.getHex(), transparent: true, opacity: 0.55, depthTest: false });
+      var edges = new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeo, 35), lockEdge);
+      edges.renderOrder = 31;
+      lock.add(edges);
+      var arc = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.27, 14, 40, Math.PI), lockMat);
+      arc.position.y = h / 2 + 1.0; arc.renderOrder = 31;
+      lock.add(arc);
+      [-1.2, 1.2].forEach(function (x) {
+        var leg = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 1.0, 14, 1, true), lockMat);
+        leg.position.set(x, h / 2 + 0.5, 0); leg.renderOrder = 31;
+        lock.add(leg);
+      });
+      var hole = new THREE.Shape(), slot = new THREE.Shape();
+      hole.absarc(0, 0.28, 0.36, 0, Math.PI * 2, false);
+      slot.moveTo(-0.16, 0.2); slot.lineTo(0.16, 0.2); slot.lineTo(0.28, -0.72); slot.lineTo(-0.28, -0.72); slot.closePath();
+      keyMat = new THREE.MeshBasicMaterial({ color: 0xcfe6ff, transparent: true, opacity: 0.95, depthTest: false, side: THREE.DoubleSide });
+      [hole, slot].forEach(function (sh) {
+        var m = new THREE.Mesh(new THREE.ShapeGeometry(sh, 20), keyMat);
+        m.position.z = 0.82; m.renderOrder = 32;
+        lock.add(m);
+      });
+      lockGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: glowTexture([[0, "rgba(120,180,255,0.5)"], [0.4, "rgba(40,110,220,0.22)"], [1, "rgba(20,60,160,0)"]]),
+        transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending
+      }));
+      lockGlow.scale.setScalar(13); lockGlow.renderOrder = 29;
+      lock.add(lockGlow);
+      lock.position.y = 1.5;
+    })();
+
+    function wrapText(ctx, text, maxW) {
+      var lines = [], line = "";
+      text.split(" ").forEach(function (word) {
+        var test = line ? line + " " + word : word;
+        if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = word; } else { line = test; }
+      });
+      if (line) lines.push(line);
+      return lines;
+    }
+    // A card is drawn once to a 2D canvas, then used as a texture and as the source of its dots.
+    function drawCard(def) {
+      var cv = document.createElement("canvas"), W = 1024, H = 576, ctx = cv.getContext("2d"), x0 = 66, y;
+      cv.width = W; cv.height = H;
+      ctx.beginPath();
+      ctx.moveTo(42, 6); ctx.arcTo(W - 6, 6, W - 6, H - 6, 36); ctx.arcTo(W - 6, H - 6, 6, H - 6, 36);
+      ctx.arcTo(6, H - 6, 6, 6, 36); ctx.arcTo(6, 6, W - 6, 6, 36); ctx.closePath();
+      var grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, "rgba(10, 27, 50, 0.95)"); grad.addColorStop(1, "rgba(6, 13, 24, 0.95)");
+      ctx.fillStyle = grad; ctx.fill();
+      ctx.lineWidth = 3; ctx.strokeStyle = "rgba(120, 178, 245, 0.8)"; ctx.stroke();
+      ctx.fillStyle = "#6fb1f2"; ctx.font = '500 24px "IBM Plex Mono", monospace';
+      try { ctx.letterSpacing = "4px"; } catch (e) { /* older browsers */ }
+      ctx.fillText(def.kicker.toUpperCase(), x0, 104);
+      try { ctx.letterSpacing = "0px"; } catch (e) { /* older browsers */ }
+      ctx.fillStyle = "#f4f6fa"; ctx.font = '650 50px "Archivo", sans-serif';
+      y = 178;
+      wrapText(ctx, def.title, W - x0 * 2).forEach(function (ln) { ctx.fillText(ln, x0, y); y += 60; });
+      y += 16;
+      ctx.font = '400 31px "Archivo", sans-serif';
+      def.lines.forEach(function (ln) {
+        ctx.fillStyle = "#6fb1f2"; ctx.fillRect(x0, y - 12, 24, 4);
+        ctx.fillStyle = "#c3cad6";
+        wrapText(ctx, ln, W - x0 * 2 - 44).forEach(function (part) { ctx.fillText(part, x0 + 44, y); y += 42; });
+        y += 10;
+      });
+      return cv;
+    }
+    function buildSecurityCards(defs) {
+      secCards.forEach(function (c) {
+        secSpin.remove(c.pivot);
+        c.tex.dispose(); c.mat.dispose(); c.pm.dispose(); c.plane.geometry.dispose(); c.pts.geometry.dispose();
+      });
+      secCards = [];
+      defs.forEach(function (def, i) {
+        var cv = drawCard(def), tex = new THREE.CanvasTexture(cv), pivot = new THREE.Group();
+        tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+        var mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthTest: false, depthWrite: false });
+        var plane = new THREE.Mesh(new THREE.PlaneGeometry(SEC.w, SEC.h), mat);
+        plane.position.set(0, SEC.cardY, SEC.R); plane.renderOrder = 33;
+        pivot.add(plane);
+
+        // dots are taken from the card's own pixels: the border and the text get most of them
+        var data = cv.getContext("2d").getImageData(0, 0, cv.width, cv.height).data, r = mulberry(100 + i);
+        var home = [], seed = [], bright = [], tries = 0;
+        while (bright.length < SEC.N && tries++ < 80000) {
+          var px = Math.floor(r() * cv.width), py = Math.floor(r() * cv.height), o = (py * cv.width + px) * 4;
+          if (data[o + 3] < 40) continue;
+          var lum = (data[o] + data[o + 1] + data[o + 2]) / 765;
+          if (r() > 0.05 + lum * 0.95) continue;
+          home.push((px / cv.width - 0.5) * SEC.w, (0.5 - py / cv.height) * SEC.h, 0);
+          seed.push(r(), r(), r());
+          bright.push(0.3 + lum * 0.7);
+        }
+        var g = new THREE.BufferGeometry();
+        g.setAttribute("position", new THREE.Float32BufferAttribute(home, 3));
+        g.setAttribute("aSeed", new THREE.Float32BufferAttribute(seed, 3));
+        g.setAttribute("aBright", new THREE.Float32BufferAttribute(bright, 1));
+        var pm = new THREE.ShaderMaterial({
+          uniforms: {
+            uB: { value: 1 }, uOpacity: { value: 0 }, uTime: { value: 0 }, uR: { value: SEC.R }, uPx: { value: px },
+            uColor: { value: U.line }, uAccent: { value: U.accent }
+          },
+          vertexShader: DOTS_VERT, fragmentShader: DOTS_FRAG, transparent: true, depthTest: false, depthWrite: false
+        });
+        var pts = new THREE.Points(g, pm);
+        pts.position.y = SEC.cardY; pts.frustumCulled = false; pts.renderOrder = 30;
+        pivot.add(pts);
+        secSpin.add(pivot);
+        secCards.push({ pivot: pivot, plane: plane, pts: pts, mat: mat, pm: pm, tex: tex });
+      });
+    }
+
     var ambient = new THREE.AmbientLight(0xb9c0d6, 0.5);
     var keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
     var lightM = new THREE.PointLight(0xff3fd0, 0, 0), lightC = new THREE.PointLight(0x38d6ff, 0, 0);
@@ -941,9 +1120,10 @@
 
     var cur = {}, inited = false, last = 0, t0 = -1, raf = 0, running = false, blank = false;
     var mouse = { x: 0, y: 0 }, fast = { x: 9, y: 9 }, mouseT = { x: 0, y: 0 }, hasPointer = false;
-    var attach = { visH: 1, visW: 1, narrow: false, pX: 0, pY: 0, pS: 1 };
+    var attach = { visH: 1, visW: 1, narrow: false, pX: 0, pY: 0, pS: 1, secS: 1 };
     var logoBox = { cy: 0.36, h: 0.5 };
     var focusLevel = -100, gaze = { on: false, x: 0, y: 0 };
+    var blink = { next: -1, start: -10, twice: false }, blinkRand = mulberry(404);
 
     function onPointer(e) {
       mouseT.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -967,6 +1147,7 @@
       attach.pS = narrow ? clamp(aspect * 1.05, 0.5, 0.8) : clamp(aspect / 1.9, 0.62, 1);
       attach.pX = narrow ? 0 : visW * 0.235;
       attach.pY = narrow ? visH * 0.235 : visH * 0.02;
+      attach.secS = clamp((visW * 0.86) / 14.5, 0.5, 1);
       ringMat.uniforms.uAspect.value = aspect;
       ringMat.uniforms.uPx.value = px;
       pulses.mat.uniforms.uPx.value = px;
@@ -1013,7 +1194,7 @@
       mouse.x += (mouseT.x - mouse.x) * km; mouse.y += (mouseT.y - mouse.y) * km;
       if (hasPointer) { fast.x += (mouseT.x - fast.x) * kf; fast.y += (mouseT.y - fast.y) * kf; }
 
-      if (cur.world < 0.004 && cur.logo < 0.004 && cur.proton < 0.004) {
+      if (cur.world < 0.004 && cur.logo < 0.004 && cur.proton < 0.004 && cur.sec < 0.004) {
         if (!blank) { renderer.clear(); blank = true; }
         if (opts.onFrame) opts.onFrame(cur, api);
         return;
@@ -1116,12 +1297,50 @@
         eyeRings.forEach(function (m) { m.rotation.z = pt * m.userData.speed; });
         eyeMat.uniforms.uTime.value = pt; eyeMat.uniforms.uBoost.value = 0.12;
         eyeGlow.material.opacity = 0.88;
+        // It blinks every few seconds, and now and then twice in a row.
+        if (!reduce) {
+          if (blink.next < 0) blink.next = t + 2;
+          if (t > blink.next) { blink.start = t; blink.next = t + 3.2 + blinkRand() * 4.5; blink.twice = blinkRand() < 0.25; }
+          var bp = (t - blink.start) / 0.26, shut = 0;
+          if (bp >= 0 && bp < 1) shut = Math.sin(bp * Math.PI);
+          else if (blink.twice && bp >= 1.35 && bp < 2.35) shut = Math.sin((bp - 1.35) * Math.PI);
+          eye.scale.y = 1 - 0.93 * shut;
+          eyeGlow.material.opacity = 0.88 * (1 - 0.6 * shut);
+        }
         coreMat.uniforms.uTime.value = pt;
         bits.forEach(function (b) {
           var ud = b.userData, a = ud.a + pt * ud.sp;
           b.position.set(Math.cos(a) * ud.rad - look.x * 1.2, ud.y + Math.sin(pt * 0.6 + ud.a) * 0.4 - look.y * 0.9, Math.sin(a) * ud.rad * 0.55);
           b.rotation.set(ud.rx + pt * 0.3, ud.ry + pt * 0.22, 0);
         });
+      }
+
+      /* security: the lock and its cards */
+      var sv = cur.sec, sOn = sv > 0.01 && !attach.narrow && secCards.length > 0;
+      secGroup.visible = sOn;
+      if (sOn) {
+        var stt = reduce ? 0 : t, turn = cur.secTurn * (Math.PI / 2), ci;
+        secGroup.position.set(0, attach.visH * 0.02, -ATTACH_D);
+        secGroup.rotation.x = 0.2;
+        secGroup.scale.setScalar(attach.secS * 0.88 * (0.6 + 0.4 * ease(sv)));
+        lock.rotation.y = Math.sin(stt * 0.55) * 0.32;
+        lock.position.y = 1.5 + Math.sin(stt * 0.9) * 0.12;
+        lockMat.uniforms.uOpacity.value = sv;
+        keyMat.opacity = (0.8 + 0.15 * Math.sin(stt * 2.2)) * sv;
+        lockEdge.opacity = 0.55 * sv;
+        lockGlow.material.opacity = 0.55 * sv;
+        for (ci = 0; ci < secCards.length; ci++) {
+          var sc = secCards[ci], ang = ci * (Math.PI / 2) - turn + Math.sin(stt * 0.5) * 0.02;
+          // phi is how far the card has turned away from the front: 0 facing the viewer, pi at the back
+          var phi = Math.abs(Math.atan2(Math.sin(ang), Math.cos(ang)));
+          sc.pivot.rotation.y = ang;
+          sc.mat.opacity = sv * (1 - ease((phi - 0.14) / 0.36));
+          sc.plane.visible = sc.mat.opacity > 0.01;
+          sc.pm.uniforms.uB.value = ease((phi - 0.28) / 0.9);
+          sc.pm.uniforms.uOpacity.value = sv * ease((phi - 0.08) / 0.26);
+          sc.pm.uniforms.uTime.value = stt;
+          sc.pm.uniforms.uPx.value = px;
+        }
       }
 
       renderer.render(scene, camera);
@@ -1139,6 +1358,8 @@
       setLogoBox: function (cy, h) { if (isFinite(cy) && isFinite(h)) { logoBox.cy = cy; logoBox.h = h; } },
       // where the orb should look, in screen units from -1 to 1; call with no arguments to look ahead
       setGaze: function (x, y) { gaze.on = x !== undefined && x !== null; if (gaze.on) { gaze.x = x; gaze.y = y; } },
+      // the four cards around the lock: [{ kicker, title, lines: [] }]
+      setSecurityCards: function (defs) { buildSecurityCards(defs); },
       setFocus: function (dims, level) {
         for (var key in G) G[key].dimTar = dims && dims[key] !== undefined ? dims[key] : (dims ? dims.rest : 1);
         focusLevel = level === undefined || level === null ? -100 : level;
@@ -1152,5 +1373,5 @@
     return api;
   }
 
-  window.HourlineScene = { create: create };
+  window.SiteScene = { create: create };
 })();

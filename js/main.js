@@ -50,7 +50,9 @@
     world: 1, grid: 1, context: 0, found: 1, floor: 0, struct: 1, slabs: 1, blocks: 0, crane: 0, scaffold: 0,
     services: 0, facade: 1, roof: 1, beacon: 0, dims: 0, land: 0, explode: 0, logo: 0, proton: 0, tagSite: 0, tagExp: 0,
     // real: how solid the built parts are. ghost: how visible the unbuilt design model is. lights: windows lit.
-    real: 1, ghost: 0, lights: 0, pside: 1
+    real: 1, ghost: 0, lights: 0, pside: 1,
+    // sec: the security lock is on screen. secTurn: how many quarter turns its cards have made.
+    sec: 0, secTurn: 0
   };
   var KEYS = Object.keys(BASE);
   function S(o) { var s = {}, k; for (k in BASE) s[k] = BASE[k]; for (k in o) s[k] = o[k]; return s; }
@@ -73,7 +75,7 @@
     protonR: R({ world: 0, ox: 0, proton: 1, pside: 1, moy: 0 }),
     protonL: R({ world: 0, ox: 0, proton: 1, pside: -1, moy: 0 }),
     roles: R({ ox: 0.24, moy: -0.25 }),
-    rolesOff: R({ ox: 0.24, world: 0, moy: -0.25 }),
+    security: R({ ox: 0, world: 0, sec: 1, moy: 0 }),
     contact: S({ az: -0.55, el: 0.2, dist: 118, tx: 0, ty: 10, tz: 0, ox: 0, oy: -0.1, context: 1, beacon: 1, lights: 1, land: 1, sway: 0.14, moy: -0.12 }),
     contactOff: S({ az: -0.55, el: 0.2, dist: 118, tx: 0, ty: 10, tz: 0, ox: 0, oy: -0.3, context: 1, beacon: 1, lights: 1, land: 1, world: 0, moy: -0.3 })
   };
@@ -81,10 +83,12 @@
     ["#hero", "logo"], ["#site", "site"], ["#ch-foundation", "ch1"], ["#ch-structure", "ch2"], ["#ch-floors", "ch3"],
     ["#ch-site", "ch4"], ["#ch-services", "ch5"], ["#ch-envelope", "ch6"], ["#modules", "exploded"], ["#website", "web"],
     ["#prow-1", "protonR"], ["#prow-2", "protonL"], ["#prow-3", "protonR"], ["#prow-4", "protonL"], ["#prow-5", "protonR"],
-    ["#prow-6", "protonL"], ["#roles", "roles"], ["#security", "rolesOff"],
+    ["#prow-6", "protonL"], ["#roles", "roles"], ["#security", "security", 0.12], ["#security", "security", 0.9],
     ["#contact", "contact"], ["#contact-body", "contactOff"]
   ];
-  var stops = STOPS.map(function (d) { return { el: $(d[0]), name: d[1], c: 0, s: null }; }).filter(function (s) { return s.el; });
+  // a stop sits at the middle of its element unless a third value says how far down it is (0 to 1)
+  var stops = STOPS.map(function (d) { return { el: $(d[0]), name: d[1], f: d[2] === undefined ? 0.5 : d[2], c: 0, s: null }; }).filter(function (s) { return s.el; });
+  var secEl = $("#security"), secBox = { top: 0, h: 1 }, secSteps = $$(".security__steps li"), lastStep = -1;
   var vh = window.innerHeight, narrow = false, active = 0, out = {};
   var heroEl = $("#hero"), heroInner = $(".hero__inner"), heroBox = { top: 68, bottom: 400 };
 
@@ -103,11 +107,17 @@
     var y = window.scrollY;
     stops.forEach(function (s) {
       var r = s.el.getBoundingClientRect();
-      s.c = r.top + y + r.height * 0.5;
+      s.c = r.top + y + r.height * s.f;
       s.s = adjust(STATES[s.name]);
       // Proton rows: remember where the card is, so the orb can look at it
       s.card = s.el.querySelector(".prow__card");
     });
+    // phones and browsers without WebGL get the security cards as a plain grid
+    doc.classList.toggle("sec-static", !scene || narrow);
+    if (secEl) {
+      var sr = secEl.getBoundingClientRect();
+      secBox.top = sr.top + y; secBox.h = sr.height;
+    }
     if (heroEl && heroInner) {
       heroBox.top = heroEl.getBoundingClientRect().top + y;
       heroBox.bottom = heroInner.getBoundingClientRect().top + y;
@@ -123,6 +133,9 @@
     // the orb stays beside a card for longer, then crosses quickly
     out.pside = a.s.pside + (b.s.pside - a.s.pside) * smooth(0.28, 0.72, raw);
     active = t < 0.5 ? i : i + 1;
+    // security: each card holds the front for a while, then the ring turns a quarter to the next one
+    var sp = clamp((window.scrollY - secBox.top) / Math.max(1, secBox.h - vh), 0, 1) * 3, si = Math.min(2, Math.floor(sp));
+    out.secTurn = si + smooth(0.3, 0.7, sp - si);
     if (scene) {
       var st = stops[active];
       if (st.card) {
@@ -164,6 +177,11 @@
       lastBg = cur.proton;
       protonBg.style.opacity = cur.proton.toFixed(3);
     }
+    var step = Math.round(cur.secTurn);
+    if (step !== lastStep) {
+      lastStep = step;
+      for (i = 0; i < secSteps.length; i++) secSteps[i].classList.toggle("is-on", i === step);
+    }
     if (name !== lastName) {
       lastName = name;
       applyFocus();
@@ -195,7 +213,7 @@
     };
   });
   var globeCanvas = $("#web-globe");
-  var globe = globeCanvas && window.HourlineGlobe ? window.HourlineGlobe.create(globeCanvas) : null;
+  var globe = globeCanvas && window.SiteGlobe ? window.SiteGlobe.create(globeCanvas) : null;
   var tilt = { x: 0, y: 0, tx: 0, ty: 0 }, frame = 0;
   function measureShots() {
     shots.forEach(function (s) {
@@ -212,8 +230,24 @@
     });
     stage.addEventListener("pointerleave", function () { tilt.tx = 0; tilt.ty = 0; });
   }
+  // Proton's cards fade in as they rise into place and fade out as they leave through the top.
+  var protonEl = $("#proton"), prowCards = $$(".prow__card").map(function (el) { return { el: el, a: -1 }; });
+  function fadeCards() {
+    if (!protonEl || reduce) return;
+    var pr = protonEl.getBoundingClientRect();
+    if (pr.bottom < -200 || pr.top > vh + 200) return;
+    for (var i = 0; i < prowCards.length; i++) {
+      var c = prowCards[i], cr = c.el.getBoundingClientRect();
+      var a = Math.min(smooth(vh * 0.94, vh * 0.52, cr.top), smooth(-cr.height * 0.6, vh * 0.03, cr.top));
+      if (Math.abs(a - c.a) < 0.005) continue;
+      c.a = a;
+      c.el.style.opacity = a.toFixed(3);
+      c.el.style.transform = "translate3d(0," + ((1 - a) * 26).toFixed(1) + "px,0)";
+    }
+  }
   function tick(now) {
     requestAnimationFrame(tick);
+    fadeCards();
     if (!stage) return;
     var r = stage.getBoundingClientRect();
     if (r.bottom < -200 || r.top > vh + 200) return;
@@ -321,12 +355,25 @@
   if ("ResizeObserver" in window) new ResizeObserver(measure).observe(document.body);
 
   var canvas = $("#scene");
-  if (canvas && window.THREE && window.HourlineScene) {
-    scene = window.HourlineScene.create(canvas, { getState: getState, onFrame: onFrame, reduceMotion: reduce, line: "#e9edf3",
+  if (canvas && window.THREE && window.SiteScene) {
+    scene = window.SiteScene.create(canvas, { getState: getState, onFrame: onFrame, reduceMotion: reduce, line: "#e9edf3",
       // lines, glows and the hover colour in the scene use the lighter tint of the primary navy
       accent: (window.getComputedStyle(doc).getPropertyValue("--accent-hi") || "").trim() || "#5ea6ee"
     });
   }
-  if (scene) { scene.start(); window.__hourline = scene; } else { doc.classList.add("no-webgl"); }
+  if (scene) {
+    // the security cards are drawn from the text in the page, again once the fonts have loaded
+    var secDefs = $$(".security__cards > li").map(function (li) {
+      return { kicker: $(".sec__kicker", li).textContent, title: $("h3", li).textContent, lines: $$("ul li", li).map(function (x) { return x.textContent; }) };
+    });
+    var buildSec = function () { scene.setSecurityCards(secDefs); };
+    buildSec();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(buildSec);
+    scene.start();
+    window.__scene = scene;
+  } else {
+    doc.classList.add("no-webgl");
+  }
+  measure();
   requestAnimationFrame(tick);
 })();
